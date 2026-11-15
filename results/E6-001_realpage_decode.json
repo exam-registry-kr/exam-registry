@@ -1,0 +1,105 @@
+{
+ "note": "Real exam page (2026 수능 국어 p1, A3 150dpi) with tiled yellow markers; 10 simulated captures per cell; partial = 4-chunk match, final = partial + enhancement decoder.",
+ "results": {
+  "ink0.2_view1.0_W1280": {
+   "n": 10,
+   "partial": 0,
+   "final": 2
+  },
+  "ink0.2_view0.5_W960": {
+   "n": 10,
+   "partial": 3,
+   "final": 5
+  },
+  "ink0.2_view0.25_W640": {
+   "n": 10,
+   "partial": 0,
+   "final": 0
+  },
+  "ink0.2_view0.25_W480": {
+   "n": 10,
+   "partial": 0,
+   "final": 0
+  },
+  "ink0.12_view1.0_W1280": {
+   "n": 10,
+   "partial": 0,
+   "final": 0
+  },
+  "ink0.12_view0.5_W960": {
+   "n": 10,
+   "partial": 0,
+   "final": 1
+  },
+  "ink0.12_view0.25_W640": {
+   "n": 10,
+   "partial": 0,
+   "final": 0
+  },
+  "ink0.12_view0.25_W480": {
+   "n": 10,
+   "partial": 0,
+   "final": 0
+  },
+  "ink0.7_view1.0_W1280": {
+   "n": 10,
+   "partial": 10,
+   "final": 10
+  },
+  "ink0.7_view0.5_W960": {
+   "n": 10,
+   "partial": 10,
+   "final": 10
+  },
+  "ink0.7_view0.25_W640": {
+   "n": 10,
+   "partial": 9,
+   "final": 10
+  },
+  "ink0.7_view0.25_W480": {
+   "n": 10,
+   "partial": 2,
+   "final": 6
+  },
+  "ink0.35_view1.0_W1280": {
+   "n": 10,
+   "partial": 2,
+   "final": 5
+  },
+  "ink0.35_view0.5_W960": {
+   "n": 10,
+   "partial": 10,
+   "final": 9
+  },
+  "ink0.35_view0.25_W640": {
+   "n": 10,
+   "partial": 2,
+   "final": 4
+  },
+  "ink0.35_view0.25_W480": {
+   "n": 10,
+   "partial": 0,
+   "final": 2
+  },
+  "ink0.5_view1.0_W1280": {
+   "n": 10,
+   "partial": 10,
+   "final": 10
+  },
+  "ink0.5_view0.5_W960": {
+   "n": 10,
+   "partial": 10,
+   "final": 10
+  },
+  "ink0.5_view0.25_W640": {
+   "n": 10,
+   "partial": 5,
+   "final": 9
+  },
+  "ink0.5_view0.25_W480": {
+   "n": 10,
+   "partial": 0,
+   "final": 2
+  }
+ }
+}

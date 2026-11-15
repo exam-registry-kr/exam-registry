@@ -1,0 +1,46 @@
+{
+ "decoder_partial_match": {
+  "highlighter": {
+   "pages": 40,
+   "captures": 80,
+   "partial_matches": 0,
+   "seen_chunk_total": 5
+  },
+  "sticky": {
+   "pages": 40,
+   "captures": 80,
+   "partial_matches": 0,
+   "seen_chunk_total": 7
+  },
+  "texture": {
+   "pages": 40,
+   "captures": 80,
+   "partial_matches": 0,
+   "seen_chunk_total": 7
+  },
+  "blocks": {
+   "pages": 40,
+   "captures": 80,
+   "partial_matches": 0,
+   "seen_chunk_total": 7
+  }
+ },
+ "decoder_final_enhanced": {
+  "blocks": {
+   "captures": 16,
+   "matches": 0
+  },
+  "sticky": {
+   "captures": 40,
+   "matches": 0
+  },
+  "highlighter": {
+   "captures": 80,
+   "matches": 0
+  },
+  "texture": {
+   "captures": 16,
+   "matches": 0
+  }
+ }
+}

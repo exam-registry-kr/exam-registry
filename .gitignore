@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.log
+page.png
+code/demo_out/
+code/e1_*/
+code/e5_s*/
+code/e5_stage2/
+code/run_*/
+code/sample_ink*.png
+code/*.json
+code/*.jsonl
+code/e2_out/

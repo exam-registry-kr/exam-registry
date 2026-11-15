@@ -1,0 +1,163 @@
+{
+ "n_registered": 60,
+ "n_negative": 240,
+ "thresholds": {
+  "0.5": {
+   "format": {
+    "exact": 0.0,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "numbers": {
+    "exact": 0.5833333333333334,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "reorder": {
+    "exact": 0.08333333333333333,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "partial": {
+    "exact": 0.0,
+    "ngram": 0.9666666666666667,
+    "ngram_num": 0.9666666666666667
+   },
+   "synonym": {
+    "exact": 0.08333333333333333,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "combined": {
+    "exact": 0.0,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "false_match_on_similar_practice_problems": {
+    "exact": 0.0,
+    "ngram": 0.9041666666666667,
+    "ngram_num": 0.0
+   }
+  },
+  "0.6": {
+   "format": {
+    "exact": 0.0,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "numbers": {
+    "exact": 0.5833333333333334,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "reorder": {
+    "exact": 0.08333333333333333,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "partial": {
+    "exact": 0.0,
+    "ngram": 0.9666666666666667,
+    "ngram_num": 0.9666666666666667
+   },
+   "synonym": {
+    "exact": 0.08333333333333333,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "combined": {
+    "exact": 0.0,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "false_match_on_similar_practice_problems": {
+    "exact": 0.0,
+    "ngram": 0.775,
+    "ngram_num": 0.0
+   }
+  },
+  "0.7": {
+   "format": {
+    "exact": 0.0,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "numbers": {
+    "exact": 0.5833333333333334,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "reorder": {
+    "exact": 0.08333333333333333,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "partial": {
+    "exact": 0.0,
+    "ngram": 0.85,
+    "ngram_num": 0.85
+   },
+   "synonym": {
+    "exact": 0.08333333333333333,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "combined": {
+    "exact": 0.0,
+    "ngram": 0.9166666666666666,
+    "ngram_num": 0.9166666666666666
+   },
+   "false_match_on_similar_practice_problems": {
+    "exact": 0.0,
+    "ngram": 0.5625,
+    "ngram_num": 0.0
+   }
+  },
+  "0.8": {
+   "format": {
+    "exact": 0.0,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "numbers": {
+    "exact": 0.5833333333333334,
+    "ngram": 0.9166666666666666,
+    "ngram_num": 0.9166666666666666
+   },
+   "reorder": {
+    "exact": 0.08333333333333333,
+    "ngram": 1.0,
+    "ngram_num": 1.0
+   },
+   "partial": {
+    "exact": 0.0,
+    "ngram": 0.38333333333333336,
+    "ngram_num": 0.38333333333333336
+   },
+   "synonym": {
+    "exact": 0.08333333333333333,
+    "ngram": 0.9166666666666666,
+    "ngram_num": 0.9166666666666666
+   },
+   "combined": {
+    "exact": 0.0,
+    "ngram": 0.9166666666666666,
+    "ngram_num": 0.9166666666666666
+   },
+   "false_match_on_similar_practice_problems": {
+    "exact": 0.0,
+    "ngram": 0.12916666666666668,
+    "ngram_num": 0.0
+   }
+  }
+ },
+ "example": {
+  "registered": "Junho has 105 marbles. Daeun gives Junho 72 more marbles and then Junho gives away 29 marbles. How many marbles does Junho have now?",
+  "format": "JUNHO  HAS  105  MARBLES .  DAEUN  GIVES  JUNHO  72  MORE  MARBLES  AND  THEN  JUNHO  GIVES  AWAY  29  MARBLES .  HOW  MANY  MARBLES  DOES  JUNHO  HAVE  NOW?",
+  "numbers": "Junho has 105 marbles. Daeun gives Junho  72  more marbles and then Junho gives away  29  marbles. How many marbles does Junho have now?",
+  "reorder": "Daeun gives Junho 72 more marbles and then Junho gives away 29 marbles. How many marbles does Junho have now? Junho has 105 marbles.",
+  "partial": "gives Junho 72 more marbles and then Junho gives away 29 marbles. How many",
+  "synonym": "Junho owns 105 marbles. Daeun hands Junho 72 more marbles and then Junho hands away 29 marbles. What value of marbles does Junho have now?",
+  "combined": "DAEUN HANDS JUNHO 72 MORE MARBLES AND THEN JUNHO HANDS AWAY 29 MARBLES . WHAT VALUE OF MARBLES DOES JUNHO HAVE NOW? JUNHO OWNS 105 MARBLES ."
+ }
+}

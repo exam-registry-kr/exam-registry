@@ -1,0 +1,77 @@
+{
+ "protocol": {
+  "valid_record": "accepted",
+  "tampered_record": "reject:bad_signature",
+  "unaccredited_authority": "reject:unaccredited",
+  "window_too_long": "reject:window_too_long",
+  "retroactive_registration": "reject:retroactive",
+  "reveal_matches": true,
+  "reveal_altered_question": false,
+  "reveal_wrong_salt": false
+ },
+ "decision_time": {
+  "1280": {
+   "median_s": 0.30351060799966945,
+   "max_s": 0.393140694000067
+  },
+  "1920": {
+   "median_s": 0.5160975839999082,
+   "max_s": 0.5515904369999589
+  },
+  "4032": {
+   "median_s": 1.6257286459999705,
+   "max_s": 1.671738896000079
+  }
+ },
+ "marked_page": {
+  "in_window": {
+   "REFUSE": 60,
+   "ALLOW": 0
+  },
+  "after_window": {
+   "REFUSE": 0,
+   "ALLOW": 60
+  },
+  "before_window": {
+   "REFUSE": 0,
+   "ALLOW": 60
+  }
+ },
+ "benign_in_window": {
+  "plain": {
+   "n": 100,
+   "refused": 0,
+   "reasons": {
+    "no_marker": 100
+   }
+  },
+  "highlighter": {
+   "n": 100,
+   "refused": 0,
+   "reasons": {
+    "no_marker": 100
+   }
+  },
+  "sticky": {
+   "n": 100,
+   "refused": 0,
+   "reasons": {
+    "no_marker": 100
+   }
+  },
+  "texture": {
+   "n": 100,
+   "refused": 0,
+   "reasons": {
+    "no_marker": 100
+   }
+  },
+  "blocks": {
+   "n": 100,
+   "refused": 0,
+   "reasons": {
+    "no_marker": 100
+   }
+  }
+ }
+}
