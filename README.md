@@ -98,6 +98,7 @@ python summarize_results.py
 | 서명된 시험 시간에 따른 거절 | 시험 시간 안 60/60 거절, 시간 밖 거절 0건, 일반 페이지 500장 거절 0건. 위조 서명, 미인가 기관, 24시간 초과, 소급 등록은 모두 거부 | `python e2_protocol.py` | 약 15분 |
 | 문항 조각 대조와 숫자 검사 | 같은 유형 연습문제 오인 0%, 바꿔 쓴 문장 97~100% 탐지 (실험용 문항, 일치 기준 0.5) | `python e3_registry.py` | 수 초 |
 | 문장은 읽히나 표식은 판독되지 않는 사진 (1,152장) | 완전 판독만 사용 시 33장, 최종 판독기 0장. 최종 판독기의 일반 문서 오인 0/152 | 아래 3.2 | 약 30분 |
+| 상용 AI가 읽을 수 있는지 (사진 36장) | 상용 AI가 문제를 푼 사진 10장은 모두 표식도 판독됨. 표식이 판독되지 않은 사진 22장은 상용 AI도 풀지 못함 | `python e5_stage2_score.py` | 수 초 |
 | 실제 시험지 적용 | 현재 판독 가능한 최저 인쇄 농도 50% | 아래 3.3 | 약 5분 |
 | 암호화된 문항 내용 조회 | 같은 판정 규칙의 일반 대조와 600건 모두 같은 판정. 질문 1건당 시험 기관 서버 처리 약 13ms, AI 서비스 측 전체 약 53ms (시연 구현, CPU 1개) | `python e7_oprf_lookup.py` | 약 1분 |
 
@@ -127,6 +128,22 @@ NP=8 python e5_fp2.py texture
 ```
 
 같은 사진을 두 방법으로 읽습니다. 하나는 AI 서비스가 사용할 표식 판독기이고, 다른 하나는 문자 인식(OCR)으로 사진 속 문제 문장을 읽는 것입니다. 문장을 읽을 수 있는데 표식은 판독되지 않는 사진을 셉니다. Windows 명령 프롬프트에서는 `NP=40 python ...` 대신 `set NP=40` 후 `python ...`을 실행합니다.
+
+#### 상용 AI로 다시 확인 (E5-003)
+
+문자 인식 프로그램보다 사진을 잘 읽는 상용 AI로도 같은 질문을 확인했습니다. 3.2의 사진 가운데 36장을 AI에 보이기 전에 정한 규칙(`code/e5_stage2.py` 머리말)으로 골랐습니다. 최종 판독기가 표식을 읽지 못한 사진 20장(글자가 가장 큰 순), 그중 2장의 반복, 최종 판독기만 읽어 낸 작은 글씨 사진 10장, 선명한 대조 사진 4장입니다. 사진마다 ChatGPT에 문제 번호, 읽은 문장, 답을 물었습니다.
+
+| 묶음 | 장수 | 상용 AI가 푼 사진 | 표식 판독 |
+|---|---|---|---|
+| 최종 판독기가 표식을 읽지 못한 사진 (반복 2장 포함) | 22 | 0 | 0 |
+| 최종 판독기만 읽어 낸 작은 글씨 사진 | 10 | 6 | 10 |
+| 선명한 대조 사진 | 4 | 4 | 4 |
+
+상용 AI가 푼 사진은 모두 표식도 판독되어, 협조하는 AI 서비스라면 답을 거절했을 사진입니다. 반대로 글자 크기가 6픽셀 안팎인 사진 4장은 상용 AI가 문장을 읽지 못했지만 표식은 판독되었습니다. 9번 사진은 처음에 같은 대화에서 바로 앞에 넣은 같은 시험지 사진(같은 1번 문항)의 내용으로 답했으나, 새 대화에서 사진 한 장만 넣어 두 가지 질문으로 다시 물었을 때는 모두 판독 불가였습니다. 정답은 사진의 시험지 번호로 문항을 다시 만들어 자동으로 채점합니다. 사진, 정답표, 질문, 응답 원문은 `results/E5-003_*`에 있습니다.
+
+```
+python e5_stage2_score.py
+```
 
 ### 3.3 실제 시험지 적용
 
@@ -167,6 +184,7 @@ python e7_oprf_lookup.py
 - 실험용 시험지에서는 낮은 인쇄 농도에서도 표식이 판독되었지만, 글자와 그림이 많은 실제 시험지에서는 현재 50%가 최저 농도입니다. 목표는 육안으로 거의 구분되지 않는 농도(`figures/sample_target_faint.png`)이며, 이를 위한 추가 연구를 진행할 예정입니다.
 - 문항 내용 조회의 정확도는 실험용으로 만든 문항으로만 평가했습니다. 문항 조각 대조 실험(E3)과 3.5의 "바꿔 쓴 질문"은 띄어쓰기, 숫자 표기, 문장 순서, 일부 발췌, 단어 치환을 자동으로 적용한 것입니다. 문장을 완전히 바꿔 글로 입력한 질문은 탐지가 제한적입니다.
 - 암호화 조회의 처리 시간은 시연 구현을 CPU 1개로 측정한 값입니다. 실제 운영 규모의 처리량은 공용 조회 서버를 구현한 뒤 측정해야 합니다.
+- 상용 AI 판독 시험은 한 모델, 사진 36장의 결과입니다. 모델명은 기록하지 못했고, 1차 질문의 원문은 보관하지 못했습니다(`results/E5-003_prompts.md`). 모델이 바뀌면 다시 확인해야 합니다.
 - 라이브러리 버전이 크게 다르면 영상 처리 결과가 소수의 시행에서 달라질 수 있습니다. 시험한 버전은 `requirements.txt`에 적었습니다.
 - 사용자가 직접 구성한 로컬 AI, 협조하지 않는 서비스, 사람에 의한 대리 풀이는 본 제안으로 막을 수 없으며 기존 단속과 감독이 담당합니다.
 
@@ -182,7 +200,7 @@ python e7_oprf_lookup.py
 | `code/oprf_demo.py` | 가린 상태의 문항 내용 조회 원리 |
 | `code/e7_oprf_lookup.py` | 암호화 조회와 일반 대조의 판정 비교, 처리 시간 |
 | `code/e5_legibility.py`, `e5_enh.py`, `e5_collect.py`, `e5_fp.py`, `e5_fp2.py` | 문장 판독과 표식 판독 비교, 최종 판독기, 일반 문서 오인 검사 |
-| `code/e5_stage2.py` | 상용 AI 판독 시험용 사진 생성 (진행 중) |
+| `code/e5_stage2.py`, `e5_stage2_score.py` | 상용 AI 판독 시험용 사진 생성과 채점 |
 | `code/e6_make_sample.py`, `e6_check_decode.py` | 실제 시험지 적용 |
 | `results/` | 실험 원자료 (파일명 앞의 E1~E7은 위 실험 순서) |
 | `figures/` | 결과 그래프, 실험용 시험지 견본 |
@@ -191,7 +209,6 @@ python e7_oprf_lookup.py
 ## 6. 미포함 자료
 
 - 실제 시험지 원본과 이를 이용한 견본 이미지 (저작권)
-- 상용 AI 판독 시험의 입력 사진과 정답 (시험 완료 후 추가)
 
 ## 7. 라이선스
 
@@ -199,6 +216,6 @@ Apache License 2.0
 
 ## Summary (English)
 
-Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: a printed yellow marker that carries the exam ID, and an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. The same format extends from national exams to university, certification and online exams.
+Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: a printed yellow marker that carries the exam ID, and an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
 
 Quick start: `pip install -r requirements.txt`, then `cd code && python demo.py` (about five minutes). `python summarize_results.py` prints every number quoted in the documents from the raw results. All results come from print-and-capture simulation; the final marker decoder was revised after inspecting the E5 results, and the pre-revision numbers are also published.

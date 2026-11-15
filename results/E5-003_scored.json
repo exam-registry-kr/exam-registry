@@ -1,0 +1,398 @@
+{
+ "experiment": "E5-003",
+ "n_photos": 36,
+ "groups": {
+  "A": {
+   "n": 20,
+   "solved": 0,
+   "marker_final": 0
+  },
+  "B": {
+   "n": 10,
+   "solved": 6,
+   "marker_final": 10
+  },
+  "C": {
+   "n": 2,
+   "solved": 0,
+   "marker_final": 0
+  },
+  "D": {
+   "n": 4,
+   "solved": 4,
+   "marker_final": 4
+  }
+ },
+ "solved": 10,
+ "solved_with_marker": 10,
+ "gaps": [],
+ "retested": [
+  {
+   "photo": 9,
+   "first_attempt_solved": true,
+   "final_solved": false
+  }
+ ],
+ "rows": [
+  {
+   "photo": 1,
+   "group": "A",
+   "seed": 6060,
+   "em_px": 7.25,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 2,
+   "group": "D",
+   "seed": 5050,
+   "em_px": 28.73,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 3,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 7.96,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 4,
+   "group": "D",
+   "seed": 6060,
+   "em_px": 35.41,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 5,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 9.63,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 6,
+   "group": "D",
+   "seed": 6060,
+   "em_px": 28.82,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 7,
+   "group": "B",
+   "seed": 5050,
+   "em_px": 6.04,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 8,
+   "group": "C",
+   "seed": 5050,
+   "em_px": 9.63,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 9,
+   "group": "A",
+   "seed": 6060,
+   "em_px": 8.45,
+   "marker_final": 0,
+   "first_attempt_solved": true,
+   "solved": false,
+   "attempts": 3
+  },
+  {
+   "photo": 10,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 9.62,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 11,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 5.97,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 12,
+   "group": "B",
+   "seed": 6060,
+   "em_px": 6.28,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 13,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 9.63,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 14,
+   "group": "A",
+   "seed": 6060,
+   "em_px": 7.25,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 15,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 9.56,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 16,
+   "group": "A",
+   "seed": 6060,
+   "em_px": 9.53,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 17,
+   "group": "B",
+   "seed": 6060,
+   "em_px": 6.98,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 18,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 5.24,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 19,
+   "group": "B",
+   "seed": 5050,
+   "em_px": 6.56,
+   "marker_final": 1,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 20,
+   "group": "B",
+   "seed": 6060,
+   "em_px": 6.29,
+   "marker_final": 1,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 21,
+   "group": "B",
+   "seed": 6060,
+   "em_px": 6.0,
+   "marker_final": 1,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 22,
+   "group": "C",
+   "seed": 5050,
+   "em_px": 9.63,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 23,
+   "group": "A",
+   "seed": 6060,
+   "em_px": 6.54,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 24,
+   "group": "A",
+   "seed": 6060,
+   "em_px": 8.31,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 25,
+   "group": "B",
+   "seed": 5050,
+   "em_px": 6.54,
+   "marker_final": 1,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 26,
+   "group": "A",
+   "seed": 6060,
+   "em_px": 9.54,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 27,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 8.15,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 28,
+   "group": "D",
+   "seed": 5050,
+   "em_px": 35.2,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 29,
+   "group": "B",
+   "seed": 5050,
+   "em_px": 6.31,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 30,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 7.25,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 31,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 9.61,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 32,
+   "group": "A",
+   "seed": 6060,
+   "em_px": 5.24,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 33,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 5.83,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 34,
+   "group": "A",
+   "seed": 5050,
+   "em_px": 5.46,
+   "marker_final": 0,
+   "first_attempt_solved": false,
+   "solved": false,
+   "attempts": 1
+  },
+  {
+   "photo": 35,
+   "group": "B",
+   "seed": 6060,
+   "em_px": 6.19,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  },
+  {
+   "photo": 36,
+   "group": "B",
+   "seed": 5050,
+   "em_px": 6.89,
+   "marker_final": 1,
+   "first_attempt_solved": true,
+   "solved": true,
+   "attempts": 1
+  }
+ ]
+}

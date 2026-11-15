@@ -40,6 +40,10 @@ print(f"   최종 판독기가 실패한 사진의 최대 글자 크기 {max(r['
 fp = load("E5-002_false_positives.json")["decoder_final_enhanced"]
 print(f"   최종 판독기의 일반 문서 오인 {sum(v['matches'] for v in fp.values())}/{sum(v['captures'] for v in fp.values())}")
 
+e53 = load("E5-003_scored.json")
+print(f"   상용 AI 판독 시험(E5-003): 사진 {e53['n_photos']}장 중 AI가 푼 사진 {e53['solved']}장, 그중 표식 판독 {e53['solved_with_marker']}장,"
+      f" 표식 미판독인데 AI가 푼 사진 {len(e53['gaps'])}장")
+
 print("5. 실제 시험지 적용 (E6-001, 조건당 10회, 최종 판독기)")
 e6 = load("E6-001_realpage_decode.json")["results"]
 for ink in ("0.7", "0.5", "0.35", "0.2", "0.12"):
