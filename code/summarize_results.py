@@ -45,3 +45,15 @@ e6 = load("E6-001_realpage_decode.json")["results"]
 for ink in ("0.7", "0.5", "0.35", "0.2", "0.12"):
     cells = [f"{k.split('_', 1)[1]}={v['final']}/{v['n']}" for k, v in e6.items() if k.startswith(f"ink{ink}_")]
     print(f"   인쇄 농도 {float(ink):.0%}: " + ", ".join(cells))
+
+print("6. 암호화된 문항 내용 조회 (E7-001, 일치 기준 0.5)")
+e7 = load("E7-001_results.json")
+d = e7["identical_decisions"]
+print(f"   암호화 조회와 일반 대조의 판정 일치 {d['count']}/{d['total']}건")
+for k, v in e7["detection_and_false_match"].items():
+    label = "같은 유형 연습문제 오인" if k == "practice" else f"바꿔 쓴 질문({k}) 탐지"
+    print(f"   {label}: 일반 대조 {v['plain']:.1%}, 암호화 조회 {v['oprf']:.1%}, E3 방식 {v['e3']:.1%}")
+t = e7["timing"]
+print(f"   질문 1건당 조각 {t['pieces_per_query_median']:.0f}개(중앙값), AI 서비스 측 총 {t['client_total_ms_median']}ms,"
+      f" 시험 기관 서버 {t['authority_ms_per_query_median']}ms, 조각당 전송 {t['bytes_per_piece_each_way']}바이트(각 방향)")
+print("   (시연 구현 기준. RFC 9497 구현이 아니며 측정 환경에 따라 달라짐)")
