@@ -1,7 +1,7 @@
-"""Exam-day walkthrough: every party acts only on the information it actually holds.
+"""Operation walkthrough: every party acts only on the information it actually holds.
 
-    python exam_day.py            # about half a minute; writes exam_day_out/
-    python exam_day.py --html-only exam_day_out/trace.json   # rebuild the timeline page
+    python operation_demo.py       # about half a minute; writes operation_demo_out/
+    python operation_demo.py --html-only operation_demo_out/trace.json   # rebuild the timeline page
 
 Parties and what each one holds
   Ministry of Education   : its accreditation key
@@ -289,7 +289,7 @@ def print_page(E, F, seed, exam_id):
 # --------------------------------------------------------------------------- scenario
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default="exam_day_out")
+    ap.add_argument("--out", default="operation_demo_out")
     ap.add_argument("--html-only")
     a = ap.parse_args()
     if a.html_only:
@@ -540,7 +540,7 @@ def main():
                trace=TRACE, roles=[dict(role=a_, has=b_, lacks=c_) for a_, b_, c_ in roles])
     json.dump(out, open(os.path.join(a.out, "trace.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     write_outputs(out, a.out)
-    print(f"\n기록: {a.out}/trace.json, 시간표: {a.out}/exam_day.html, {a.out}/exam_day.md, 사진: {a.out}/photo_*.png")
+    print(f"\n기록: {a.out}/trace.json, 시간표: {a.out}/operation_demo.html, {a.out}/operation_demo.md, 사진: {a.out}/photo_*.png")
 
 
 def write_outputs(out, d):
@@ -559,26 +559,26 @@ def write_outputs(out, d):
         md_rows.append(f"| {e['time']} | {cell(e['actor'])} | {cell(e['action'])} | {cell(e['saw'])} | {cell(e['not_seen'])} | {cell(e['result'])} |")
     roles = "".join(f"<tr><td class='a'>{esc(r['role'])}</td><td>{esc(r['has'])}</td><td>{esc(r['lacks'])}</td></tr>" for r in out["roles"])
     intro = (f"{ex['title']}, 시험 번호 {ex['exam_id']}, 시험 시간 {ex['start']}~{ex['end']}. "
-             "각 기관은 자기가 가진 정보만으로 움직입니다. 판정은 `code/exam_day.py`를 실행한 실제 계산 결과입니다. "
+             "각 기관은 자기가 가진 정보만으로 움직입니다. 판정은 `code/operation_demo.py`를 실행한 실제 계산 결과입니다. "
              "사진은 시뮬레이션으로 만든 것이며, 보안 문양은 실험에 쓴 진한 농도(70%)로 인쇄했습니다(목표 외관은 훨씬 옅음). "
              "키는 실행할 때마다 새로 만들어지므로 약속값, 요약값, 연결값은 실행마다 달라집니다.")
     page = f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>시험 보호 국가 등록제: 시험 하루 시연</title><style>
+<title>시험 보호 국가 등록제: 운영 과정 시연</title><style>
 body{{font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;margin:24px;color:#111;line-height:1.55;max-width:1200px}}
 h1{{font-size:22px;margin:0 0 4px}} p.sub{{margin:0 0 18px}}
 table{{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0 24px}} th,td{{border:1px solid #ccc;padding:6px 8px;vertical-align:top;text-align:left;word-break:keep-all}}
 th{{background:#f2f2f2}} td.t{{white-space:nowrap;font-variant-numeric:tabular-nums}} td.a{{font-weight:600}}
 tr.ph td{{background:#222;color:#fff;font-weight:700}} tr.refuse td.r{{background:#fff3c4;font-weight:600}} tr.reject td.r{{background:#f3e0e0}}
 .wrap{{overflow-x:auto}}</style></head><body>
-<h1>시험 보호 국가 등록제: 시험 하루 시연</h1><p class="sub">{esc(intro)}</p>
+<h1>시험 보호 국가 등록제: 운영 과정 시연</h1><p class="sub">{esc(intro)}</p>
 <h2>시간 순서</h2><div class="wrap"><table><tr><th>시각</th><th>주체</th><th>한 일</th><th>본 것</th><th>보지 못한 것</th><th>결과</th></tr>{''.join(rows)}</table></div>
 <h2>역할별 정보</h2><div class="wrap"><table><tr><th>역할</th><th>가진 것</th><th>갖지 않은 것</th></tr>{roles}</table></div>
-<p class="sub">코드: github.com/exam-registry-kr/exam-registry · <code>python exam_day.py</code></p></body></html>"""
-    open(os.path.join(d, "exam_day.html"), "w", encoding="utf-8").write(page)
-    md = ["# 시험 하루 시연\n", intro + "\n", "## 시간 순서\n", "| 시각 | 주체 | 한 일 | 본 것 | 보지 못한 것 | 결과 |", "|---|---|---|---|---|---|"]
+<p class="sub">코드: github.com/exam-registry-kr/exam-registry · <code>python operation_demo.py</code></p></body></html>"""
+    open(os.path.join(d, "operation_demo.html"), "w", encoding="utf-8").write(page)
+    md = ["# 운영 과정 시연\n", intro + "\n", "## 시간 순서\n", "| 시각 | 주체 | 한 일 | 본 것 | 보지 못한 것 | 결과 |", "|---|---|---|---|---|---|"]
     md += md_rows + ["", "## 역할별 정보\n", "| 역할 | 가진 것 | 갖지 않은 것 |", "|---|---|---|"]
     md += [f"| {r['role']} | {r['has']} | {r['lacks']} |" for r in out["roles"]]
-    open(os.path.join(d, "exam_day.md"), "w", encoding="utf-8").write("\n".join(md) + "\n")
+    open(os.path.join(d, "operation_demo.md"), "w", encoding="utf-8").write("\n".join(md) + "\n")
 
 
 if __name__ == "__main__":
