@@ -4,6 +4,8 @@
 
 이 제안은 2026년 11월 15일 국민신문고 일반제안으로 교육부에 제출하였습니다.
 
+문의: 김동휘(한양대학교 전기공학과), dongwhi01@hanyang.ac.kr
+
 - 정책 제안서: [`docs/정책제안서.pdf`](docs/정책제안서.pdf)
 - 기술 명세: [`docs/설계명세.pdf`](docs/설계명세.pdf)
 - 시험 하루 시연 결과: [`docs/시험하루_시연.md`](docs/시험하루_시연.md)
@@ -238,3 +240,5 @@ Apache License 2.0
 Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: a printed yellow marker that carries the exam ID, and an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT, model shown as GPT-Astra) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
 
 Quick start: `pip install -r requirements.txt`, then `cd code && python demo.py` (about five minutes). `python summarize_results.py` prints every number quoted in the documents from the raw results. All results come from print-and-capture simulation; the final marker decoder was revised after inspecting the E5 results, and the pre-revision numbers are also published.
+
+Contact: dongwhi01@hanyang.ac.kr
