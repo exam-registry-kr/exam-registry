@@ -1,0 +1,325 @@
+{
+ "experiment": "E8-001",
+ "threshold": 0.5,
+ "sizes": [
+  60,
+  600,
+  6000,
+  60000
+ ],
+ "arms": [
+  "top_set",
+  "any_set",
+  "top_count",
+  "any_count"
+ ],
+ "n_queries": 600,
+ "n_positive": 360,
+ "n_practice": 240,
+ "templates": 12,
+ "extra_seed": 20261118,
+ "extra_exact_copies_of_practice_replaced": 6,
+ "by_size": {
+  "60": {
+   "n_registered": 60,
+   "index_build_seconds": 0.002,
+   "detected_correct_item": {
+    "top_set": 0.9944,
+    "any_set": 0.9944,
+    "top_count": 0.9944,
+    "any_count": 0.9944
+   },
+   "detected_by_rewrite": {
+    "format": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "numbers": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "reorder": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "partial": {
+     "top_set": 0.9667,
+     "any_set": 0.9667,
+     "top_count": 0.9667,
+     "any_count": 0.9667
+    },
+    "synonym": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "combined": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    }
+   },
+   "practice_refused": {
+    "top_set": 0,
+    "any_set": 0,
+    "top_count": 0,
+    "any_count": 0
+   },
+   "practice_refused_examples": {
+    "top_set": [],
+    "any_set": [],
+    "top_count": [],
+    "any_count": []
+   },
+   "lookup_ms_median": 0.043,
+   "lookup_ms_p95": 0.06,
+   "baseline_top_set_matches_E7_plain": {
+    "count": 600,
+    "total": 600
+   }
+  },
+  "600": {
+   "n_registered": 600,
+   "index_build_seconds": 0.015,
+   "detected_correct_item": {
+    "top_set": 0.9944,
+    "any_set": 0.9944,
+    "top_count": 0.9944,
+    "any_count": 0.9944
+   },
+   "detected_by_rewrite": {
+    "format": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "numbers": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "reorder": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "partial": {
+     "top_set": 0.9667,
+     "any_set": 0.9667,
+     "top_count": 0.9667,
+     "any_count": 0.9667
+    },
+    "synonym": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "combined": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    }
+   },
+   "practice_refused": {
+    "top_set": 0,
+    "any_set": 0,
+    "top_count": 0,
+    "any_count": 0
+   },
+   "practice_refused_examples": {
+    "top_set": [],
+    "any_set": [],
+    "top_count": [],
+    "any_count": []
+   },
+   "lookup_ms_median": 0.357,
+   "lookup_ms_p95": 0.506
+  },
+  "6000": {
+   "n_registered": 6000,
+   "index_build_seconds": 0.142,
+   "detected_correct_item": {
+    "top_set": 0.9944,
+    "any_set": 0.9944,
+    "top_count": 0.9944,
+    "any_count": 0.9944
+   },
+   "detected_by_rewrite": {
+    "format": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "numbers": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "reorder": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "partial": {
+     "top_set": 0.9667,
+     "any_set": 0.9667,
+     "top_count": 0.9667,
+     "any_count": 0.9667
+    },
+    "synonym": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "combined": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    }
+   },
+   "practice_refused": {
+    "top_set": 1,
+    "any_set": 1,
+    "top_count": 0,
+    "any_count": 0
+   },
+   "practice_refused_examples": {
+    "top_set": [
+     {
+      "practice": "A bag contains 50 red balls and 27 blue balls. If 27 balls are drawn without replacement, what is the probability that all are red?",
+      "matched": "A bag contains 330 red balls and 50 blue balls. If 27 balls are drawn without replacement, what is the probability that all are red?"
+     }
+    ],
+    "any_set": [
+     {
+      "practice": "A bag contains 50 red balls and 27 blue balls. If 27 balls are drawn without replacement, what is the probability that all are red?",
+      "matched": "A bag contains 330 red balls and 50 blue balls. If 27 balls are drawn without replacement, what is the probability that all are red?"
+     }
+    ],
+    "top_count": [],
+    "any_count": []
+   },
+   "lookup_ms_median": 3.518,
+   "lookup_ms_p95": 5.362
+  },
+  "60000": {
+   "n_registered": 60000,
+   "index_build_seconds": 1.475,
+   "detected_correct_item": {
+    "top_set": 0.9944,
+    "any_set": 0.9944,
+    "top_count": 0.9944,
+    "any_count": 0.9944
+   },
+   "detected_by_rewrite": {
+    "format": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "numbers": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "reorder": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "partial": {
+     "top_set": 0.9667,
+     "any_set": 0.9667,
+     "top_count": 0.9667,
+     "any_count": 0.9667
+    },
+    "synonym": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    },
+    "combined": {
+     "top_set": 1.0,
+     "any_set": 1.0,
+     "top_count": 1.0,
+     "any_count": 1.0
+    }
+   },
+   "practice_refused": {
+    "top_set": 1,
+    "any_set": 5,
+    "top_count": 0,
+    "any_count": 3
+   },
+   "practice_refused_examples": {
+    "top_set": [
+     {
+      "practice": "The geometric sequence has first term 68 and ratio 68. Find the sum of the first 12 terms.",
+      "matched": "The geometric sequence has first term 89 and ratio 68. Find the sum of the first 12 terms."
+     }
+    ],
+    "any_set": [
+     {
+      "practice": "The sum of two numbers is 70 and their difference is 22. Find the larger number.",
+      "matched": "The sum of two numbers is 22 and their difference is 70. Find the larger number."
+     },
+     {
+      "practice": "Jisoo saves 198 won every day for 70 days and then spends 25 won. How much money is left?",
+      "matched": "Taeyang saves 198 won every day for 70 days and then spends 25 won. How much money is left?"
+     },
+     {
+      "practice": "The sum of two numbers is 54 and their difference is 62. Find the larger number.",
+      "matched": "The sum of two numbers is 62 and their difference is 54. Find the larger number."
+     },
+     {
+      "practice": "A bag contains 50 red balls and 27 blue balls. If 27 balls are drawn without replacement, what is the probability that all are red?",
+      "matched": "A bag contains 50 red balls and 69 blue balls. If 27 balls are drawn without replacement, what is the probability that all are red?"
+     },
+     {
+      "practice": "The geometric sequence has first term 68 and ratio 68. Find the sum of the first 12 terms.",
+      "matched": "The geometric sequence has first term 89 and ratio 68. Find the sum of the first 12 terms."
+     }
+    ],
+    "top_count": [],
+    "any_count": [
+     {
+      "practice": "The sum of two numbers is 70 and their difference is 22. Find the larger number.",
+      "matched": "The sum of two numbers is 22 and their difference is 70. Find the larger number."
+     },
+     {
+      "practice": "Jisoo saves 198 won every day for 70 days and then spends 25 won. How much money is left?",
+      "matched": "Taeyang saves 198 won every day for 70 days and then spends 25 won. How much money is left?"
+     },
+     {
+      "practice": "The sum of two numbers is 54 and their difference is 62. Find the larger number.",
+      "matched": "The sum of two numbers is 62 and their difference is 54. Find the larger number."
+     }
+    ]
+   },
+   "lookup_ms_median": 37.731,
+   "lookup_ms_p95": 52.714
+  }
+ }
+}

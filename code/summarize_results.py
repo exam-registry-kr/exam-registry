@@ -61,3 +61,14 @@ t = e7["timing"]
 print(f"   질문 1건당 조각 {t['pieces_per_query_median']:.0f}개(중앙값), AI 서비스 측 총 {t['client_total_ms_median']}ms,"
       f" 시험 기관 서버 {t['authority_ms_per_query_median']}ms, 조각당 전송 {t['bytes_per_piece_each_way']}바이트(각 방향)")
 print("   (시연 구현 기준. RFC 9497 구현이 아니며 측정 환경에 따라 달라짐)")
+
+print("7. 등록 문항 수를 늘렸을 때 (E8-001, 모든 문항이 같은 12개 유형인 가장 불리한 조건)")
+e8 = load("E8-001_results.json")
+b = e8["by_size"][str(e8["sizes"][0])]["baseline_top_set_matches_E7_plain"]
+print(f"   기준선: 등록 {e8['sizes'][0]}개에서 E7 일반 대조와 같은 판정 {b['count']}/{b['total']}건")
+names = {"top_set": "E7 규칙(숫자 한 번씩)", "top_count": "보완 규칙(반복 숫자 횟수 반영)"}
+for N in e8["sizes"]:
+    e = e8["by_size"][str(N)]
+    cells = [f"{names[a]} 탐지 {e['detected_correct_item'][a]:.1%}, 연습문제 오인 {e['practice_refused'][a]}/{e8['n_practice']}"
+             for a in ("top_set", "top_count")]
+    print(f"   등록 {N:,}개: " + " | ".join(cells))

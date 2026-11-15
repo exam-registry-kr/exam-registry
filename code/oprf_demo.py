@@ -40,7 +40,9 @@ def finalize(x: str, y: int) -> str:
 def pieces(text: str):
     t = re.sub(r"[\s\.,?!·~\"'()]", "", text)
     grams = {t[i:i + 4] for i in range(max(0, len(t) - 3))}
-    nums = {"#" + n for n in re.findall(r"\d+(?:\.\d+)?", text)}
+    # numbers counted with repetition: a number that appears twice must appear twice in the item (see E8)
+    found = re.findall(r"\d+(?:\.\d+)?", text)
+    nums = {"#" + n + ("" if j == 1 else f"*{j}") for n in set(found) for j in range(1, found.count(n) + 1)}
     return grams, nums
 
 

@@ -2,7 +2,7 @@
 
 진행 중인 시험 문제에 AI가 답하지 않도록 하는 국가 단위 등록 체계의 설계 문서, 시뮬레이션 코드, 실험 결과입니다. 수능에서 시작하여 자격시험, 대학 시험, 학교 내신으로 단계적으로 확대하고, 국제 표준으로 제안하는 것을 목표로 합니다. 누구나 아래 절차에 따라 결과를 직접 확인하고 재현할 수 있습니다.
 
-이 제안은 2026년 11월 15일 국민신문고 일반제안으로 교육부에 제출하였습니다. 정책 제안서는 제출 당시의 판입니다. 이후 추가한 실험(상용 AI 판독 시험, 암호화 조회 검증, 운영 과정 시연)은 이 저장소에서 확인할 수 있습니다.
+이 제안은 2026년 11월 15일 국민신문고 일반제안으로 교육부에 제출하였습니다. 정책 제안서는 제출 당시의 판입니다. 이후 추가한 실험(상용 AI 판독 시험, 암호화 조회 검증, 등록 규모 확대 시험, 운영 과정 시연)은 이 저장소에서 확인할 수 있습니다.
 
 문의: 김동휘(한양대학교 전기공학과), dongwhi01@hanyang.ac.kr
 
@@ -121,6 +121,7 @@ python summarize_results.py
 | 상용 AI가 읽을 수 있는지 (사진 36장) | 상용 AI가 문제를 푼 사진 10장은 모두 표식도 판독됨. 표식이 판독되지 않은 사진 22장은 상용 AI도 풀지 못함 | `python e5_stage2_score.py` | 수 초 |
 | 실제 시험지 적용 | 현재 판독 가능한 최저 인쇄 농도 50% | 아래 3.3 | 약 5분 |
 | 암호화된 문항 내용 조회 | 같은 판정 규칙의 일반 대조와 600건 모두 같은 판정. 질문 1건당 시험 기관 서버 처리 약 13ms, AI 서비스 측 전체 약 53ms (시연 구현, CPU 1개) | `python e7_oprf_lookup.py` | 약 1분 |
+| 등록 문항이 6만 개로 늘어날 때 | 바꿔 쓴 질문 탐지 99.4% 유지. 연습문제 오인은 E7 규칙에서 6천 개부터 1/240, 반복 숫자를 횟수까지 맞추는 보완 규칙에서 6만 개까지 0/240 | `python e8_registry_scale.py` | 약 30초 |
 
 ### 3.1 표식 판독
 
@@ -197,12 +198,30 @@ python e7_oprf_lookup.py
 
 600건 모두 두 방식의 판정, 일치한 문항, 일치 비율이 같습니다. 바꿔 쓴 질문 탐지율과 연습문제 오인율(0%)도 E3 방식과 같습니다. 판정은 실행할 때마다 같고, 처리 시간은 컴퓨터에 따라 달라집니다. 이 구현은 처리 비용을 보이기 위한 시연이며 RFC 9497 구현이 아닙니다(곡선 위의 점으로 바꾸는 방식과 인코딩이 다름).
 
+### 3.6 등록 문항이 많아질 때 (E8)
+
+```
+python e8_registry_scale.py
+```
+
+중간고사 기간처럼 많은 학교가 같은 날 시험을 등록하면 등록 문항이 수만 개가 됩니다. 등록 문항을 60개에서 600개, 6,000개, 60,000개로 늘리며 3.5와 같은 질문 600건을 다시 판정했습니다. 늘린 문항은 모두 연습문제와 같은 12개 유형에서 만들어, 학생이 공부하는 문제와 비슷한 문항이 등록부를 채우는 가장 불리한 조건으로 했습니다. 등록 60개에서는 3.5의 일반 대조와 600건 모두 같은 판정이 나오는지 먼저 확인했습니다.
+
+| 등록 문항 | 바꿔 쓴 질문 탐지 | 연습문제 오인 (E7 규칙) | 연습문제 오인 (보완 규칙) |
+|---|---|---|---|
+| 60 | 99.4% | 0/240 | 0/240 |
+| 600 | 99.4% | 0/240 | 0/240 |
+| 6,000 | 99.4% | 1/240 | 0/240 |
+| 60,000 | 99.4% | 1/240 | 0/240 |
+
+E7 규칙은 질문의 숫자를 종류별로 한 번만 확인합니다. 그래서 "첫째항 68, 공비 68"처럼 같은 숫자가 두 번 나오는 연습문제가, 68이 한 번만 있는 다른 등록 문항과 일치한 것으로 판정되었습니다. 반복된 숫자는 등록 문항에도 같은 횟수만큼 있어야 일치로 보도록 보완하면 6만 개까지 오인이 없었고, 탐지율은 그대로였습니다. 운영 규칙에는 보완 규칙을 권장하며, 시연 코드(`demo.py`, `oprf_demo.py`, `operation_demo.py`)에는 보완 규칙을 적용했습니다. 시연의 판정 결과는 바뀌지 않았습니다. 판정 기준을 일치율이 가장 높은 문항 하나가 아니라 기준을 넘는 모든 문항으로 넓힌 경우도 비교했으며, 이때는 오인이 늘어(6만 개에서 3~5건) 채택하지 않았습니다. 결과 파일에는 오인된 연습문제와 일치한 등록 문항의 원문을 함께 기록했습니다.
+
 ## 4. 결과를 읽을 때 유의할 점
 
 - 모든 결과는 시뮬레이션입니다. 실제 카메라 촬영과 실제 인쇄물 측정은 시범 운영 단계에서 수행할 과제입니다.
 - 최종 판독기(부분 판독과 확대·선명화)는 3.2 실험 결과를 확인한 뒤 개선한 것입니다. 개선 전 결과(33장)도 함께 공개합니다.
 - 실험용 시험지에서는 낮은 인쇄 농도에서도 표식이 판독되었지만, 글자와 그림이 많은 실제 시험지에서는 현재 50%가 최저 농도입니다. 목표는 육안으로 거의 구분되지 않는 농도(`figures/sample_target_faint.png`)이며, 이를 위한 추가 연구를 진행할 예정입니다.
 - 문항 내용 조회의 정확도는 실험용으로 만든 문항으로만 평가했습니다. 문항 조각 대조 실험(E3)과 3.5의 "바꿔 쓴 질문"은 띄어쓰기, 숫자 표기, 문장 순서, 일부 발췌, 단어 치환을 자동으로 적용한 것입니다. 문장을 완전히 바꿔 글로 입력한 질문은 탐지가 제한적입니다.
+- E8의 문항은 영어 문장 유형 12개로 만든 실험용 문항입니다. 실제 시험 문항과 실제 학습 질문의 분포에서는 다시 확인해야 합니다. E8의 대조 시간(등록 6만 개에서 질문 1건당 약 40ms)은 단순 구현으로 잰 값이며 등록 문항 수에 비례해 늘어납니다.
 - 암호화 조회의 처리 시간은 시연 구현을 CPU 1개로 측정한 값입니다. 실제 운영 규모의 처리량은 공용 조회 서버를 구현한 뒤 측정해야 합니다.
 - 상용 AI 판독 시험은 한 모델(GPT-Astra), 사진 36장의 결과입니다. 1차 질문의 원문은 보관하지 못했습니다(`results/E5-003_prompts.md`). 모델이 바뀌면 다시 확인해야 합니다.
 - 라이브러리 버전이 크게 다르면 영상 처리 결과가 소수의 시행에서 달라질 수 있습니다. 시험한 버전은 `requirements.txt`에 적었습니다.
@@ -220,10 +239,11 @@ python e7_oprf_lookup.py
 | `code/e3_registry.py` | 문항 조각 대조와 숫자 검사 |
 | `code/oprf_demo.py` | 가린 상태의 문항 내용 조회 원리 |
 | `code/e7_oprf_lookup.py` | 암호화 조회와 일반 대조의 판정 비교, 처리 시간 |
+| `code/e8_registry_scale.py` | 등록 문항 수를 늘렸을 때의 탐지와 오인 |
 | `code/e5_legibility.py`, `e5_enh.py`, `e5_collect.py`, `e5_fp.py`, `e5_fp2.py` | 문장 판독과 표식 판독 비교, 최종 판독기, 일반 문서 오인 검사 |
 | `code/e5_stage2.py`, `e5_stage2_score.py` | 상용 AI 판독 시험용 사진 생성과 채점 |
 | `code/e6_make_sample.py`, `e6_check_decode.py` | 실제 시험지 적용 |
-| `results/` | 실험 원자료 (파일명 앞의 E1~E7은 위 실험 순서) |
+| `results/` | 실험 원자료 (파일명 앞의 E1~E8은 위 실험 순서) |
 | `figures/` | 결과 그래프, 실험용 시험지 견본 |
 | `docs/` | 정책 제안서, 기술 명세 |
 
@@ -237,7 +257,7 @@ Apache License 2.0
 
 ## Summary (English)
 
-Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: a printed yellow marker that carries the exam ID, and an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT, model shown as GPT-Astra) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
+Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text, which is the core, and a printed yellow marker that carries the exam ID as a supplement. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). In E8 the registry was grown to 60,000 items drawn from the same templates as the practice problems; detection of rewritten questions stayed at 99.4%, and once repeated numbers are counted, no practice problem was refused. The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT, model shown as GPT-Astra) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
 
 Quick start: `pip install -r requirements.txt`, then `cd code && python demo.py` (about five minutes). `python summarize_results.py` prints every number quoted in the documents from the raw results. All results come from print-and-capture simulation; the final marker decoder was revised after inspecting the E5 results, and the pre-revision numbers are also published.
 

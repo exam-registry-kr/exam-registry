@@ -32,6 +32,13 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey,
 from cryptography.hazmat.primitives import serialization
 from cryptography.exceptions import InvalidSignature
 
+
+def op_pieces(text):
+    """4-character pieces as in E7; numbers counted with repetition (the rule E8 recommends)."""
+    import e7_oprf_lookup as O7
+    from e8_registry_scale import numbers_count
+    return O7.pieces(text)[0], numbers_count(text)
+
 KST = timezone(timedelta(hours=9))
 DAY = datetime(2027, 6, 3, tzinfo=KST)
 T = lambda hh, mm, d=0: int((DAY + timedelta(days=d, hours=hh, minutes=mm)).timestamp())
@@ -163,7 +170,7 @@ class Authority:
         oblivious protocol, so the shared server never sees the school's items."""
         out = []
         for it in self._items:
-            g, n = self.O7.pieces(it)
+            g, n = op_pieces(it)
             out.append((self.O7.oprf(self.lookup, g), self.O7.oprf(self.lookup, n)))
         return out
 
@@ -236,7 +243,7 @@ class AIService:
         open_ = [r for r in self._open(t) if r["policy"] == "marker_or_content" and r["exam_id"] in self.values]
         if not open_:
             return "진행 중인 등록 시험 없음 -> 정상 답변", 0
-        g, n = self.O7.pieces(question)
+        g, n = op_pieces(question)
         best, by_server = 0.0, {}
         for r in open_:
             by_server.setdefault(r["lookup_server"], []).append(r)
