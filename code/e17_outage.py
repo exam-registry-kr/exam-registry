@@ -40,28 +40,13 @@ DURING = 2000
 EXAM_SHARE = 0.3
 
 
-def cached_r3(R, q, known):
-    """R3 with only the pieces in `known`. Returns (refused, item)."""
-    reg, t = R.reg, E9.nk(q)
-    allp = E9.pieces(t)[0]
-    if E9.strong_number(q):
-        qn = numbers_count(t)
-        if not qn <= known:
-            return False, -1
-        i, v = reg._top(reg.inv, allp & known)
-        return bool(i >= 0 and v / max(1, len(allp)) >= E9.TH and qn <= reg.n[i]), i
-    rest = allp - reg.stem
-    i, v = reg._top(reg.inv, rest & known)
-    return bool(i >= 0 and v >= R.floor[i] and v / max(1, len(rest)) >= E9.R3_VALUES["share"]), i
-
-
 def main():
     out_path = sys.argv[1] if len(sys.argv) > 1 else "E17-001_results.json"
     items, stems, qs, _ = E16.build(E14.SEED_CONFIRM)
-    R = E16.Rules(items, stems)
+    reg = E9.Registry(items, stems)
     exam = [q for q in qs if q[1] in E15.OLD]
     ordinary = [q for q in qs if q[1] in E15.ORDINARY]
-    out = dict(experiment="E17-001", seed=SEED, exam_share=EXAM_SHARE, questions_during_outage=DURING, rule="R3", by_questions_before_outage={})
+    out = dict(experiment="E17-001", seed=SEED, exam_share=EXAM_SHARE, questions_during_outage=DURING, rule="R5", r5=E9.R5_VALUES, by_questions_before_outage={})
 
     def draw(r):
         pool = exam if r.random() < EXAM_SHARE else ordinary
@@ -77,7 +62,7 @@ def main():
         res = dict(normal=[], cache=[], cache_only=0, ord_normal=0, ord_cache=0, n_exam=0, n_ord=0, covered=[])
         for _ in range(DURING):
             g, k, qi, q = draw(r)
-            full = R.reg.r3(q)[0]; c = cached_r3(R, q, known)[0]
+            full = reg.r5(q)[0]; c = reg.r5(q, known=known)[0]
             t = E9.nk(q); p = E9.pieces(t)[0] | numbers_count(t)
             res["covered"].append(len(p & known) / max(1, len(p)))
             if k in E15.OLD:

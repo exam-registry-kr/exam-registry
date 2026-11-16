@@ -3,7 +3,12 @@
  "seed": 20261128,
  "exam_share": 0.3,
  "questions_during_outage": 2000,
- "rule": "R3",
+ "rule": "R5",
+ "r5": {
+  "C": 0.9,
+  "span": 1.5,
+  "keep": 0.5
+ },
  "by_questions_before_outage": {
   "0": {
    "pieces_in_cache": 0,

@@ -384,17 +384,8 @@ class Rules:
 
 
     def r5_base(self, q):
-        """R3 with (a) and (b). Refuses everything R3 refuses."""
-        reg = self.reg
-        if not E9.strong_number(q):
-            return reg.r3(q)[:2]
-        qg, qn = E9.pieces(E9.nk(q))[0], numbers_count(E9.nk(q))
-        i, v = reg._top(reg.inv, qg)
-        if i >= 0 and self.strong[i]:
-            return bool(v / max(1, len(qg)) >= E9.TH and (qn <= reg.n[i] or reg.n[i] <= qn)), i
-        rest = qg - reg.stem
-        i, v = reg._top(reg.inv, rest)
-        return bool(i >= 0 and v >= self.floor[i] and v / max(1, len(rest)) >= E9.R3_VALUES["share"]), i
+        """R3 with (a) and (b): the rule as built into e9 (Registry.r5_base)."""
+        return self.reg.r5_base(q)
 
     def coverage(self, q):
         """For each SPAN: the highest share of an item's pieces found in a run of kept sentences

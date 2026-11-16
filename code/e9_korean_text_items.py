@@ -32,6 +32,10 @@ Rules compared
       remaining pieces are found in one item and they are at least a share S of what
       remains. S is chosen on one set of items (lowest value in the sweep at which no
       practice problem is refused) and then fixed and tested on a new set of items.
+  R5  final rule, chosen in E19 after E16 found ways around R3: everything R3 refuses, plus
+      (a) a question with numbers whose best item has none is judged as text, (b) the number
+      test also passes when all the item's numbers are in the question, (c) coverage: a run of
+      sentences that look like an item and hold at least a share C of its pieces
   R3  chosen later in E14 on more kinds of question: as R2, but at least min(60, 60% of the
       matched item's own pieces) must match, share 0.6 (E9's values refused quoted parts of
       practice problems)
@@ -57,6 +61,12 @@ M_MIN = 20
 # Rule R3, chosen later in E14: for a question without numbers, at least min(CAP, FRAC x the
 # matched item's own pieces) pieces must match, and the share must be at least SHARE.
 R3_VALUES = dict(cap=60, frac=0.6, share=0.6)
+# Rule R5, chosen in E19 after E16 showed that R3 can be got around by adding a number or
+# unrelated text: everything R3 refuses, and a question is also refused if a run of its
+# sentences that look like an item, at most SPAN x as long as the item, holds at least a
+# share C of that item's pieces. KEEP: a sentence looks like the item if at least this share
+# of its pieces is in the item.
+R5_VALUES = dict(C=0.9, span=1.5, keep=0.5)
 SWEEP_M, SWEEP_TH = [0, 10, 20, 30], [0.5, 0.6, 0.7, 0.8]
 
 # ---------------------------------------------------------------- Korean word problems (KN)
@@ -210,6 +220,10 @@ def nk(text):
     return unicodedata.normalize("NFKC", text)
 
 
+def sentences(q):
+    return [x for x in re.split(r"(?<=[.?!])\s+|\n+", q) if x.strip()]
+
+
 def strong_number(text):
     """True if the question has a number other than 1 to 5 (those may be only choice marks).
     Circled digits are always choice marks and are left out here."""
@@ -227,6 +241,9 @@ class Registry:
         self.stem = set().union(*[pieces(nk(s))[0] for s in stems if s]) if any(stems) else set()
         self.g0 = [pieces(t)[0] for t in items]
         self.n0 = [numbers_count(t) for t in items]
+        self.strong = [strong_number(t) for t in items]
+        self.size = [len(g - self.stem) for g in self.g]
+        self.floor = [min(R3_VALUES["cap"], -(-R3_VALUES["frac"] * z // 1)) for z in self.size]
         self.inv, self.inv0 = defaultdict(list), defaultdict(list)
         for i in range(len(items)):
             for x in self.g[i]:
@@ -274,6 +291,68 @@ class Registry:
         s = v / max(1, len(rest))
         floor = min(cap, -(-frac * len(self.g[i] - self.stem) // 1)) if i >= 0 else cap
         return bool(i >= 0 and v >= floor and s >= th), i, s
+
+    def r5_base(self, q, known=None):
+        """R3 with (a) and (b). `known`: if given, only these pieces and number tokens have a
+        value the service can compare (E17); every other piece counts as not matching."""
+        t = nk(q)
+        allp = pieces(t)[0]
+        see = (lambda x: x) if known is None else (lambda x: x & known)
+        rest = allp - self.stem
+        if strong_number(q):
+            qn = numbers_count(t)
+
+            def number_test(i, v, n_all):
+                sub = qn <= self.n[i] and (known is None or qn <= known)
+                return bool(v / max(1, n_all) >= TH and (sub or self.n[i] <= see(qn))), i
+            i, v = self._top(self.inv, see(allp))
+            if i >= 0 and self.strong[i]:
+                return number_test(i, v, len(allp))
+            i, v = self._top(self.inv, see(rest))           # best item has no numbers: look outside the stems
+            if i >= 0 and self.strong[i]:
+                return number_test(i, v, len(rest))         # an item with numbers is never judged without the number test
+        else:
+            i, v = self._top(self.inv, see(rest))
+        return bool(i >= 0 and v >= self.floor[i] and v / max(1, len(rest)) >= R3_VALUES["share"]), i
+
+    def coverage(self, q, c=None, span=None, known=None):
+        """Highest share of an item's pieces found in a run of kept sentences no longer than
+        span x the item (for an item with numbers: runs that contain all its numbers)."""
+        c = R5_VALUES["C"] if c is None else c
+        span = R5_VALUES["span"] if span is None else span
+        see = (lambda x: x) if known is None else (lambda x: x & known)
+        cnt = Counter()
+        for x in see(pieces(nk(q))[0] - self.stem):
+            for i in self.inv.get(x, ()):
+                cnt[i] += 1
+        best = (0.0, -1)
+        sents = sentences(q)
+        ps = [pieces(nk(x))[0] - self.stem for x in sents]
+        # dropping a sentence joins its neighbours and can add at most 3 pieces per sentence, so
+        # an item with fewer matched pieces than this in the whole text cannot reach c in any run
+        for i in sorted(i for i, n in cnt.items() if n + 3 * len(sents) >= c * self.size[i]):
+            keep = [j for j, p in enumerate(ps) if p and len(see(p) & self.g[i]) / len(p) >= R5_VALUES["keep"]]
+            limit = span * self.size[i]
+            for a in range(len(keep)):
+                b, total = a, len(ps[keep[a]])
+                while b + 1 < len(keep) and total + len(ps[keep[b + 1]]) <= limit:
+                    b += 1; total += len(ps[keep[b]])
+                if a > 0 and b == len(keep) - 1 and len(ps[keep[a - 1]]) + total <= limit:
+                    continue
+                text = nk(" ".join(sents[j] for j in keep[a:b + 1]))
+                if self.strong[i] and not self.n[i] <= see(numbers_count(text)):
+                    continue
+                cov = len(see(pieces(text)[0] - self.stem) & self.g[i]) / max(1, self.size[i])
+                if cov > best[0]:
+                    best = (cov, i)
+        return best
+
+    def r5(self, q, known=None):
+        hit, i = self.r5_base(q, known)
+        if hit:
+            return True, i, 1.0
+        cov, j = self.coverage(q, known=known)
+        return (True, j, round(cov, 4)) if j >= 0 and cov >= R5_VALUES["C"] else (False, i if j < 0 else j, round(cov, 4))
 
     def r2(self, q, m=M_MIN, th=0.5):
         if strong_number(q):
@@ -344,7 +423,7 @@ NEG = ("practice", "stem_only", "same_passage_other_question")
 def evaluate(seed, th_t):
     items, stems, qs, n_en = build(seed)
     reg = Registry(items, stems)
-    rules = dict(R0=reg.r0, R1=reg.r1, R2=lambda q: reg.r2(q, M_MIN, th_t), R3=reg.r3)
+    rules = dict(R0=reg.r0, R1=reg.r1, R2=lambda q: reg.r2(q, M_MIN, th_t), R3=reg.r3, R5=reg.r5)
     rows = []
     for group, kind, qi, q in qs:
         row = dict(group=group, kind=kind, item=qi, strong_number=strong_number(q))
@@ -374,14 +453,14 @@ def show(table):
         t = table[group]
         print("  ", group, "rewritten refused", t["refused_rewritten"])
         for k, v in t["refused_other"].items():
-            print(f"      {k}: refused R0 {v['R0']}, R1 {v['R1']}, R2 {v['R2']}, R3 {v['R3']} of {v['of']}")
+            print(f"      {k}: refused R0 {v['R0']}, R1 {v['R1']}, R2 {v['R2']}, R3 {v['R3']}, R5 {v['R5']} of {v['of']}")
 
 
 def main():
     out_path = sys.argv[1] if len(sys.argv) > 1 else "E9-001_results.json"
     out = dict(experiment="E9-001", seeds=dict(select=SEED_SELECT, validate=SEED_VALIDATE),
                n_registered=dict(EN=60, KN=60, KT=60), threshold_numeric=TH, min_pieces_text=M_MIN,
-               r3_values_from_E14=R3_VALUES)
+               r3_values_from_E14=R3_VALUES, r5_values_from_E19=R5_VALUES)
 
     # baseline: R0 with the EN items alone = E8 at 60 items
     items, stems, qs, n_en = build(SEED_SELECT)

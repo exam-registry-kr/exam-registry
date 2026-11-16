@@ -11,7 +11,7 @@ item, the hardest case) followed by a follow-up question.
 Planted text, placed before the victim's text
   part of a registered item: a run of consecutive words, 20% to 100% of the item
   stems only: the 10 question stems (public wording), as a check
-Rules compared: R2 (E9), R3 (registry), R5 (candidate of E16, values chosen there).
+Rules compared: R2 (E9), R3 (E14), R5 (the registry's rule, values of E19).
 Second measurement, lasting effect: the whole item is planted in the first message and the
 user then sends 8 ordinary messages (practice problems); counted: after how many of them
 the conversation is still refused.
@@ -36,16 +36,14 @@ AFTER = 8
 
 def main():
     out_path = sys.argv[1] if len(sys.argv) > 1 else "E18-001_results.json"
-    e16 = json.load(open("../results/E16-001_results.json"))["thresholds_chosen_on_selection"]["R5"]
-    C, SPAN = e16["C"], e16["span"]
+    C, SPAN = E9.R5_VALUES["C"], E9.R5_VALUES["span"]
     items, stems, qs, _ = E16.build(E14.SEED_CONFIRM)
-    R = E16.Rules(items, stems)
+    reg = E9.Registry(items, stems)
     practice = {g: [q[3] for q in qs if q[0] == g and q[1] == "practice"] for g in E16.GROUPS}
     r = np.random.default_rng(SEED)
 
     def judge(text):
-        o = dict(base=R.r5_base(text), cov=R.coverage(text))
-        return dict(R2=R.reg.r2(text, E9.M_MIN, E14.E9_SHARE)[0], R3=R.reg.r3(text)[0], R5=bool(E16.r5_hit(o, C, SPAN)[0]))
+        return dict(R2=reg.r2(text, E9.M_MIN, E14.E9_SHARE)[0], R3=reg.r3(text)[0], R5=bool(reg.r5(text)[0]))
 
     out = dict(experiment="E18-001", seed=SEED, R5=dict(C=C, span=SPAN), planted_part={}, lasting={})
     for v in VICTIM:

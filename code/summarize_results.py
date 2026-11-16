@@ -159,9 +159,9 @@ say(f"   학습 대화 오인: 같은 유형 연속 {s1['all']}/{s1['of']}, 섞�
     f"   study conversations refused: same-type practice {s1['all']}/{s1['of']}, mixed {s2['all']}/{s2['of']}")
 r3 = e12["attack_R3"]["numbers_apart_8_resolve"]["all"]
 o3 = e12["ordinary_R3"]
-say(f"   최종 규칙 R3: 숫자 따로, 본문 8개, 값 되돌리기, 대화 전체 " + "/".join(f"{r3[g]:.0%}" for g in ("EN", "KN", "KT"))
+say(f"   규칙 R3: 숫자 따로, 본문 8개, 값 되돌리기, 대화 전체 " + "/".join(f"{r3[g]:.0%}" for g in ("EN", "KN", "KT"))
     + f", 학습 대화 오인 {o3['same_template_practice']['all'] + o3['mixed_study']['all']}/1200",
-    f"   final rule R3: numbers apart, text in 8 parts, values put back, whole conversation " + "/".join(f"{r3[g]:.0%}" for g in ("EN", "KN", "KT"))
+    f"   rule R3: numbers apart, text in 8 parts, values put back, whole conversation " + "/".join(f"{r3[g]:.0%}" for g in ("EN", "KN", "KT"))
     + f", study conversations refused {o3['same_template_practice']['all'] + o3['mixed_study']['all']}/1200")
 
 say("12. 시험 기관 서버의 부하 (E13-001, 이 컴퓨터의 CPU 1개)", "12. Authority load (E13-001, one CPU core of the machine that ran it)")
@@ -202,7 +202,7 @@ say("15. 다른 방식과의 비교, 손쉬운 회피 (E16-001, 확인용 묶음
 e16 = load("E16-001_results.json")
 c16 = e16["sets"]["confirm"]
 names = [("H", "정확 해시", "exact hash"), ("K", "핵심어", "keywords"), ("V+n", "벡터+숫자", "vector + numbers"), ("L", "축소 벡터", "reduced vector"),
-         ("R3", "R3", "R3"), ("R5", "R5(후보)", "R5 (candidate)")]
+         ("R3", "R3", "R3"), ("R5", "R5(E16 값 70%)", "R5 (E16 value 70%)")]
 o = c16["summary"]["rewrites_of_E9_and_short_copies"]
 say("   기존 바꿔 쓰기와 일부 발췌: " + ", ".join(f"{ko} {o[m]:.1%}" for m, ko, en in names),
     "   earlier rewrites and short copies: " + ", ".join(f"{en} {o[m]:.1%}" for m, ko, en in names))
@@ -215,6 +215,12 @@ r5 = e16["thresholds_chosen_on_selection"]["R5"]
 say(f"   R5 값(선택용 묶음): 문항 조각의 {r5['C']:.0%}, 구간 {r5['span']}배 / 연습문제 16개 대화 오인(묶음 4개, 100건씩): {cv}",
     f"   R5 values (selection set): {r5['C']:.0%} of the item's pieces, run {r5['span']}x / 16-problem conversations refused (four sets, of 100): {cv}")
 
+r5a, o5 = e12["attack_R5"]["numbers_apart_8_resolve"]["all"], e12["ordinary_R5"]
+say("   (E12, 최종 규칙 R5) 숫자 따로, 본문 8개, 값 되돌리기, 대화 전체 " + "/".join(f"{r5a[g]:.0%}" for g in ("EN", "KN", "KT"))
+    + f", 학습 대화 오인 {o5['same_template_practice']['all'] + o5['mixed_study']['all']}/1200",
+    "   (E12, final rule R5) numbers apart, text in 8 parts, values put back, whole conversation " + "/".join(f"{r5a[g]:.0%}" for g in ("EN", "KN", "KT"))
+    + f", study conversations refused {o5['same_template_practice']['all'] + o5['mixed_study']['all']}/1200")
+
 say("16. 조회 서버가 요청 크기에서 알아낼 수 있는 것 (E15-001)", "16. What the lookup server learns from request sizes (E15-001)")
 e15 = load("E15-001_results.json")
 say(f"   문항 맞히기(무작위 {e15['chance_item']:.2%}): " + ", ".join(f"{k} {v['item_guess_accuracy']:.1%}" for k, v in e15["arms"].items()),
@@ -222,7 +228,7 @@ say(f"   문항 맞히기(무작위 {e15['chance_item']:.2%}): " + ", ".join(f"{
 say("   서버 처리량 배수: " + ", ".join(f"{k} {v['elements_per_real_element']}" for k, v in e15["arms"].items()),
     "   server load factor: " + ", ".join(f"{k} {v['elements_per_real_element']}" for k, v in e15["arms"].items()))
 
-say("17. 조회 서버가 멈췄을 때 (E17-001, 문항 질문 거절률)", "17. Lookup server down (E17-001, share of exam questions refused)")
+say("17. 조회 서버가 멈췄을 때 (E17-001, 규칙 R5, 문항 질문 거절률)", "17. Lookup server down (E17-001, rule R5, share of exam questions refused)")
 e17 = load("E17-001_results.json")["by_questions_before_outage"]
 for n, d in e17.items():
     x = d["exam_questions_refused"]
@@ -237,3 +243,17 @@ for f in ("0.0", "0.6", "1.0"):
     say(f"   문항의 {float(f):.0%}를 심음: R2 {t['R2']}, R3 {t['R3']}, R5 {t['R5']}", f"   {float(f):.0%} of an item planted: R2 {t['R2']}, R3 {t['R3']}, R5 {t['R5']}")
 la = e18["lasting"]["still_refused_after_n_ordinary_messages"]
 say(f"   전문을 심은 뒤 일반 메시지 8개: R3 {la['R3'][8]}, R5 {la['R5'][8]} (180건 중 거절 상태)", f"   whole item, then 8 ordinary messages: R3 {la['R3'][8]}, R5 {la['R5'][8]} still refused (of 180)")
+
+say("19. 최종 규칙 R5의 값과 새 문항 확인 (E19-001)", "19. Final rule R5: values and check on new items (E19-001)")
+e19 = load("E19-001_results.json")
+c19, f19 = e19["chosen"], e19["final_set"]
+say(f"   선택용 묶음에서 정한 값: 문항 조각의 {c19['C']:.0%}, 구간 {c19['span']}배 / 코드에 넣은 규칙과 같은 판정 {e19['built_in_rule_same_decisions'][0]:,}/{e19['built_in_rule_same_decisions'][1]:,}",
+    f"   chosen on the selection set: {c19['C']:.0%} of the item's pieces, run {c19['span']}x / same decisions as the rule built into the code {e19['built_in_rule_same_decisions'][0]:,}/{e19['built_in_rule_same_decisions'][1]:,}")
+for key, ko, en in (("stray_number", "숫자 하나를 앞에 붙임", "one number in front"), ("padded_3x", "무관한 문장 3배", "unrelated sentences, 3x"),
+                    ("sentence_interleave", "문장마다 끼움", "a sentence after every sentence"), ("padded_practice_16", "연습문제 16개 사이", "among 16 practice problems"),
+                    ("partial", "낱말의 60%", "60% of the words"), ("reworded", "문장을 전부 바꿈", "fully reworded")):
+    r = f19["refused"][key]["all"]
+    say(f"   {ko}: R3 {r['R3']:.1%}, R5 {r['R5']:.1%}", f"   {en}: R3 {r['R3']:.1%}, R5 {r['R5']:.1%}")
+n19 = f19["not_to_refuse"]
+say("   잘못 거절(R5): " + ", ".join(f"{k} {n19[k]['R5']}/{n19[k]['of']}" for k in ("practice", "stem_only", "conv_4", "conv_16", "long_16", "long_32")),
+    "   wrongly refused (R5): " + ", ".join(f"{k} {n19[k]['R5']}/{n19[k]['of']}" for k in ("practice", "stem_only", "conv_4", "conv_16", "long_16", "long_32")))

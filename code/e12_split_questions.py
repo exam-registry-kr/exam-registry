@@ -65,12 +65,12 @@ def resolve(text):
     return re.sub(r"(?<![A-Za-z])([A-Z])(?![A-Za-z])", lambda mo: pairs.get(mo.group(1), mo.group(1)), text)
 
 
-def conversation_refused(reg, msgs, m, th, fix=False, r3=False):
+def conversation_refused(reg, msgs, m, th, fix=False, r3=False, r5=False):
     """Refused if, at any message, the last m messages (joined) are refused."""
     for i in range(len(msgs)):
         joined = " ".join(msgs[max(0, i - m + 1):i + 1])
         q = resolve(joined) if fix else joined
-        hit = (reg.r3(q) if r3 else reg.r2(q, E9.M_MIN, th))[0]
+        hit = (reg.r5(q) if r5 else reg.r3(q) if r3 else reg.r2(q, E9.M_MIN, th))[0]
         if hit:
             return True
     return False
@@ -84,7 +84,7 @@ def main():
     group = lambda i: ("EN", "KN", "KT")[i // 60]
     rng = np.random.default_rng(SEED)
     out = dict(experiment="E12-001", share_text=th, min_pieces_text=E9.M_MIN, r3=E9.R3_VALUES,
-               last_m_messages=["1", "2", "4", "all"], attack={}, attack_R3={}, ordinary={}, ordinary_R3={})
+               last_m_messages=["1", "2", "4", "all"], attack={}, attack_R3={}, attack_R5={}, ordinary={}, ordinary_R3={}, ordinary_R5={}, r5=E9.R5_VALUES)
     mname = lambda m: "all" if m == 99 else str(m)
     for kind, k in ATTACKS:
         for fix in (False, True):
@@ -105,6 +105,14 @@ def main():
                     ok[group(i)].append(conversation_refused(reg, msgs, m, th, fix, r3=True))
                 res3[mname(m)] = {g: round(float(np.mean(v)), 4) for g, v in ok.items()}
             out["attack_R3"][f"{kind}_{k}" + ("_resolve" if fix else "")] = res3
+            res5 = {}
+            for m in MS:
+                ok = {g: [] for g in ("EN", "KN", "KT")}
+                for i, t in enumerate(items):
+                    msgs = chunks(t, k) if kind == "verbatim" else numbers_apart(t, k)
+                    ok[group(i)].append(conversation_refused(reg, msgs, m, th, fix, r5=True))
+                res5[mname(m)] = {g: round(float(np.mean(v)), 4) for g, v in ok.items()}
+            out["attack_R5"][f"{kind}_{k}" + ("_resolve" if fix else "")] = res5
 
     practice = {g: [q[3] for q in qs if q[0] == g and q[1] == "practice"] for g in ("EN", "KN", "KT")}
     convs_same, convs_mixed = [], []
@@ -125,7 +133,11 @@ def main():
     for name, convs in (("same_template_practice", convs_same), ("mixed_study", convs_mixed)):
         out["ordinary"][name] = {mname(m): int(sum(conversation_refused(reg, c, m, th, True) for c in convs)) for m in MS} | {"of": len(convs)}
         out["ordinary_R3"][name] = {mname(m): int(sum(conversation_refused(reg, c, m, th, True, r3=True) for c in convs)) for m in MS} | {"of": len(convs)}
+        out["ordinary_R5"][name] = {mname(m): int(sum(conversation_refused(reg, c, m, th, True, r5=True) for c in convs)) for m in MS} | {"of": len(convs)}
         print(f"ordinary {name}: refused " + ", ".join(f"m={mname(m)}: {out['ordinary'][name][mname(m)]}" for m in MS) + f" of {len(convs)}")
+    for key in ("numbers_apart_8", "numbers_apart_8_resolve"):
+        print("R5", key, out["attack_R5"][key])
+    print("R5 ordinary", out["ordinary_R5"])
     json.dump(out, open(out_path, "w"), indent=1, ensure_ascii=False)
 
 

@@ -31,7 +31,7 @@ from e7_oprf_lookup import pieces
 from e8_registry_scale import numbers_count
 
 TEST_SEED = hashlib.sha256(b"exam-registry public test key, never for a real exam").digest()
-TEST_INFO = b"exam-registry test vectors v2"
+TEST_INFO = b"exam-registry test vectors v2"   # the key is unchanged in v3 of the vectors; only the rule and the queries changed
 TEST_KEY = R.derive_key_pair(TEST_SEED, TEST_INFO)
 ASSUMED_QPS = 1000           # assumption for the sizing line only
 BATCHES = [1, 70, 1000, 10000]
@@ -102,7 +102,10 @@ def vectors():
     stems = ["", "", E9.STEMS[0]]
     queries = [items[0], items[0].replace(" ", ""), "어떤 수에 5를 곱한 후 21을 더하면 96이다. 이 수를 구하시오.",
                "첫째항이 68이고 공비가 3인 등비수열의 첫째항부터 제5항까지의 합을 구하시오.", items[2],
-               E9.STEMS[0], items[2].replace("①", "1)").replace("②", "2)").replace("③", "3)").replace("④", "4)").replace("⑤", "5)")]
+               E9.STEMS[0], items[2].replace("①", "1)").replace("②", "2)").replace("③", "3)").replace("④", "4)").replace("⑤", "5)"),
+               "문제 23번 " + items[0], "문제 23번 " + items[2],
+               "오늘은 날씨가 맑아서 강가를 따라 오래 걸었다. 저녁에는 동생과 함께 시장에 들러 반찬거리를 샀다. 주말에는 미뤄 둔 방 정리를 끝낼 생각이다. " + items[1],
+               "문제 23번 어떤 수에 5를 곱한 후 21을 더하면 96이다. 이 수를 구하시오."]
     reg = E9.Registry(items, stems)
     out = dict(note="public test key; the values only check an implementation and never protect a real exam",
                standard="RFC 9497 OPRF(P-256, SHA-256), mode 0x00; hash_to_curve P256_XMD:SHA-256_SSWU_RO_ (RFC 9380)",
@@ -110,18 +113,26 @@ def vectors():
                test_key_hex=R.serialize_scalar(TEST_KEY).hex(),
                F="RFC 9497 Finalize output (32 bytes, hex) for the piece in UTF-8",
                normalisation="Unicode NFKC, lower case, commas removed; pieces drop whitespace and . , ? ! · ~ \" ' ( )",
-               rule=dict(name="R3", numeric_share=O7.TH, text=E9.R3_VALUES,
-                         text_floor="min(cap, ceil(frac x pieces of the matched item outside the stems))"), items=[], queries=[])
+               rule=dict(name="R5", numeric_share=O7.TH, text=E9.R3_VALUES,
+                         text_floor="min(cap, ceil(frac x pieces of the matched item outside the stems))",
+                         coverage=E9.R5_VALUES,
+                         summary="refuse if (1) the question has a number other than 1 to 5, its best item has one too, the share is at least "
+                                 "numeric_share and the question's numbers are all in the item or the item's numbers are all in the question; or "
+                                 "(2) otherwise, pieces outside the stems: matched >= text_floor and share >= text.share; or (3) coverage: a run of "
+                                 "sentences that each have at least `keep` of their pieces in the item, no longer than span x the item, holds at "
+                                 "least C of the item's pieces (and all its numbers if it has a number other than 1 to 5). "
+                                 "score: 1.0 if refused by (1) or (2), else the coverage found"), items=[], queries=[])
     for t, s in zip(items, stems):
         g, n = pieces(E9.nk(t))[0], numbers_count(E9.nk(t))
         out["items"].append(dict(text=t, stem=s, pieces={x: F(TEST_KEY, x) for x in sorted(g)},
                                  numbers={x: F(TEST_KEY, x) for x in sorted(n)},
                                  stem_pieces=sorted(F(TEST_KEY, x) for x in pieces(E9.nk(s))[0]) if s else []))
     for q in queries:
-        hit, i, score = reg.r3(q)
+        hit, i, score = reg.r5(q)
+        r3 = bool(reg.r3(q)[0])
         out["queries"].append(dict(text=q, pieces=sorted(pieces(E9.nk(q))[0]), numbers=sorted(numbers_count(E9.nk(q))),
                                    has_number_other_than_1_to_5=E9.strong_number(q),
-                                   refuse=bool(hit), matched_item=i if hit else None, score=round(score, 4)))
+                                   refuse=bool(hit), matched_item=i if hit else None, score=round(score, 4), refused_by_R3=r3))
     return out
 
 

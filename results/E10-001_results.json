@@ -8,6 +8,11 @@
   "frac": 0.6,
   "share": 0.6
  },
+ "r5": {
+  "C": 0.9,
+  "span": 1.5,
+  "keep": 0.5
+ },
  "rates": [
   0.0,
   0.01,
@@ -31,6 +36,16 @@
     "KT": 1.0
    },
    "practice_refused_R3": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "copies_refused_R5": {
+    "EN": 1.0,
+    "KN": 1.0,
+    "KT": 1.0
+   },
+   "practice_refused_R5": {
     "EN": 0,
     "KN": 0,
     "KT": 0
@@ -62,6 +77,16 @@
     "KN": 0,
     "KT": 0
    },
+   "copies_refused_R5": {
+    "EN": 0.9222,
+    "KN": 0.9278,
+    "KT": 1.0
+   },
+   "practice_refused_R5": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
    "missed_because_of_numbers_only": {
     "EN": 0.0778,
     "KN": 0.0722
@@ -85,6 +110,16 @@
     "KT": 1.0
    },
    "practice_refused_R3": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "copies_refused_R5": {
+    "EN": 0.85,
+    "KN": 0.9,
+    "KT": 1.0
+   },
+   "practice_refused_R5": {
     "EN": 0,
     "KN": 0,
     "KT": 0
@@ -116,6 +151,16 @@
     "KN": 0,
     "KT": 0
    },
+   "copies_refused_R5": {
+    "EN": 0.7611,
+    "KN": 0.7,
+    "KT": 1.0
+   },
+   "practice_refused_R5": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
    "missed_because_of_numbers_only": {
     "EN": 0.2389,
     "KN": 0.2944
@@ -139,6 +184,16 @@
     "KT": 0.8722
    },
    "practice_refused_R3": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "copies_refused_R5": {
+    "EN": 0.5611,
+    "KN": 0.5,
+    "KT": 0.8722
+   },
+   "practice_refused_R5": {
     "EN": 0,
     "KN": 0,
     "KT": 0
@@ -170,6 +225,16 @@
     "KN": 0,
     "KT": 0
    },
+   "copies_refused_R5": {
+    "EN": 0.2444,
+    "KN": 0.2889,
+    "KT": 0.1
+   },
+   "practice_refused_R5": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
    "missed_because_of_numbers_only": {
     "EN": 0.4167,
     "KN": 0.4222
@@ -193,6 +258,16 @@
     "KT": 0.0
    },
    "practice_refused_R3": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "copies_refused_R5": {
+    "EN": 0.1278,
+    "KN": 0.1222,
+    "KT": 0.0
+   },
+   "practice_refused_R5": {
     "EN": 0,
     "KN": 0,
     "KT": 0
