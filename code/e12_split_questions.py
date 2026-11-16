@@ -5,7 +5,8 @@ last few messages of the same conversation together. This experiment measures bo
 checks that judging messages together does not refuse ordinary study conversations.
 
 Items and rule: E9's validation set (60 English word problems, 60 Korean word problems,
-60 Korean text items) and E9's proposed rule (R2) with its fixed parameters.
+60 Korean text items) and E9's proposed rule (R2) with its fixed parameters; as a second arm,
+rule R3 with the values E14 chose (E9.R3_VALUES).
 
 Attacks on every registered item
   verbatim      : the item is cut into k consecutive word chunks (k = 2, 4, 8), one per
@@ -64,11 +65,12 @@ def resolve(text):
     return re.sub(r"(?<![A-Za-z])([A-Z])(?![A-Za-z])", lambda mo: pairs.get(mo.group(1), mo.group(1)), text)
 
 
-def conversation_refused(reg, msgs, m, th, fix=False):
+def conversation_refused(reg, msgs, m, th, fix=False, r3=False):
     """Refused if, at any message, the last m messages (joined) are refused."""
     for i in range(len(msgs)):
         joined = " ".join(msgs[max(0, i - m + 1):i + 1])
-        hit = reg.r2(resolve(joined) if fix else joined, E9.M_MIN, th)[0]
+        q = resolve(joined) if fix else joined
+        hit = (reg.r3(q) if r3 else reg.r2(q, E9.M_MIN, th))[0]
         if hit:
             return True
     return False
@@ -81,8 +83,8 @@ def main():
     reg = E9.Registry(items, stems)
     group = lambda i: ("EN", "KN", "KT")[i // 60]
     rng = np.random.default_rng(SEED)
-    out = dict(experiment="E12-001", share_text=th, min_pieces_text=E9.M_MIN, last_m_messages=["1", "2", "4", "all"],
-               attack={}, ordinary={})
+    out = dict(experiment="E12-001", share_text=th, min_pieces_text=E9.M_MIN, r3=E9.R3_VALUES,
+               last_m_messages=["1", "2", "4", "all"], attack={}, attack_R3={}, ordinary={}, ordinary_R3={})
     mname = lambda m: "all" if m == 99 else str(m)
     for kind, k in ATTACKS:
         for fix in (False, True):
@@ -95,6 +97,14 @@ def main():
                 res[mname(m)] = {g: round(float(np.mean(v)), 4) for g, v in ok.items()}
             out["attack"][f"{kind}_{k}" + ("_resolve" if fix else "")] = res
             print(f"{kind:13s} k={k} {'resolve' if fix else 'plain  '}: " + "  ".join(f"m={mname(m)}: " + "/".join(f"{res[mname(m)][g]:.0%}" for g in ("EN", "KN", "KT")) for m in MS))
+            res3 = {}
+            for m in MS:
+                ok = {g: [] for g in ("EN", "KN", "KT")}
+                for i, t in enumerate(items):
+                    msgs = chunks(t, k) if kind == "verbatim" else numbers_apart(t, k)
+                    ok[group(i)].append(conversation_refused(reg, msgs, m, th, fix, r3=True))
+                res3[mname(m)] = {g: round(float(np.mean(v)), 4) for g, v in ok.items()}
+            out["attack_R3"][f"{kind}_{k}" + ("_resolve" if fix else "")] = res3
 
     practice = {g: [q[3] for q in qs if q[0] == g and q[1] == "practice"] for g in ("EN", "KN", "KT")}
     convs_same, convs_mixed = [], []
@@ -114,6 +124,7 @@ def main():
         convs_mixed.append(mixed)
     for name, convs in (("same_template_practice", convs_same), ("mixed_study", convs_mixed)):
         out["ordinary"][name] = {mname(m): int(sum(conversation_refused(reg, c, m, th, True) for c in convs)) for m in MS} | {"of": len(convs)}
+        out["ordinary_R3"][name] = {mname(m): int(sum(conversation_refused(reg, c, m, th, True, r3=True) for c in convs)) for m in MS} | {"of": len(convs)}
         print(f"ordinary {name}: refused " + ", ".join(f"m={mname(m)}: {out['ordinary'][name][mname(m)]}" for m in MS) + f" of {len(convs)}")
     json.dump(out, open(out_path, "w"), indent=1, ensure_ascii=False)
 

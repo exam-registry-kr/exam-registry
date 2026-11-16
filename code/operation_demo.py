@@ -24,7 +24,8 @@ print inspection, registration with rejected attempts, distribution and independ
 verification by AI services and devices, and the public check of the next day's
 schedule. Each step prints who acted, what that party saw and what it did not see.
 Decisions are computed, not scripted, and are the same on every run. The encrypted
-lookup is the demonstration of e7_oprf_lookup.py, not an RFC 9497 implementation.
+lookup is OPRF(P-256, SHA-256) of RFC 9497 (rfc9497.py, checked against the official
+test vectors).
 """
 import argparse, hashlib, html, json, os, secrets
 from datetime import datetime, timedelta, timezone
@@ -117,11 +118,13 @@ def check_chain(ministry_pub, chain, signer_pub, kind, t):
 
 
 class Registry:
-    """Append-only, hash-chained public log run by the designated operator."""
+    """Append-only public log run by the designated operator: an RFC 9162 Merkle tree
+    (transparency_log.py) with signed tree heads, inclusion and consistency proofs."""
 
     def __init__(self, ministry_pub, operator_key, operator_cert):
+        import transparency_log as TL
         self.ministry_pub, self._op, self.operator_cert = ministry_pub, operator_key, operator_cert
-        self.entries, self.head = [], "0" * 64
+        self.entries, self.log = [], TL.Log()
 
     def has(self, exam_id):
         return any(e["record"]["exam_id"] == exam_id for e in self.entries)
@@ -138,30 +141,36 @@ class Registry:
             return "거부: 시험 시간 24시간 초과"
         if t >= record["window_start"]:
             return "거부: 시작 후 등록(소급)"
-        entry = dict(t=t, record=record, sig=sig_hex, chain=chain, prev=self.head)
-        self.head = hashlib.sha256(canon(entry)).hexdigest()
-        entry["hash"] = self.head
+        entry = dict(t=t, record=record, sig=sig_hex, chain=chain)
         self.entries.append(entry)
+        self.log.append(canon(entry))
         return f"등록 (장부 {len(self.entries)}번째)"
 
     def signed_head(self, t):
-        h = dict(size=len(self.entries), head=self.head, t=t)
+        """Signed tree head: number of records and Merkle root (RFC 9162)."""
+        h = dict(size=self.log.size(), root=self.log.root().hex(), t=t)
         return dict(head=h, sig=self._op.sign(canon(h)).hex())
+
+    def inclusion(self, index, size):
+        return self.log.inclusion(index, size)
+
+    def consistency(self, size1, size2):
+        return self.log.consistency(size1, size2)
 
 
 class LookupKeyHolder:
-    """Holds an OPRF key. Used by an exam authority, or by the operator as the shared
-    lookup server for schools. Sees blinded points only."""
+    """Holds an OPRF key (RFC 9497, P-256). Used by an exam authority, or by the operator
+    as the shared lookup server for schools. Sees blinded elements only."""
 
     def __init__(self, O7):
-        self._O7 = O7
-        self._k = secrets.randbelow(O7.Np - 1) + 1
-        self._key = O7.ec.derive_private_key(self._k, O7.CURVE)
+        import rfc9497 as R
+        self._R = R
+        self._k = R.random_scalar()
         self.queries = 0
 
     def evaluate(self, blinded):
         self.queries += 1
-        return [int.from_bytes(self._key.exchange(self._O7.ec.ECDH(), self._O7.lift(b)), "big") for b in blinded]
+        return [self._R.blind_evaluate(self._k, b) for b in blinded]
 
 
 class Authority:
@@ -211,25 +220,23 @@ class AIService:
             return "운영 기관 지정 확인 실패"
         if not verify(pub_of(oc["cert"]["subject_key"]), signed_head["sig"], signed_head["head"]):
             return "장부 머리 서명 불일치"
-        prev, ok = "0" * 64, 0
-        for e in registry.entries:
-            body = {k: v for k, v in e.items() if k != "hash"}
-            if e["prev"] != prev or hashlib.sha256(canon(body)).hexdigest() != e["hash"]:
-                return "장부 연결 불일치"
-            prev = e["hash"]
+        import transparency_log as TL
+        n = signed_head["head"]["size"]
+        if TL.root([TL.leaf_hash(canon(e)) for e in registry.entries[:n]]).hex() != signed_head["head"]["root"]:
+            return "장부 루트 불일치"
+        ok = 0
+        for e in registry.entries[:n]:
             signer = pub_of(e["chain"][-1]["cert"]["subject_key"])
             if check_chain(self.ministry_pub, e["chain"], signer, e["record"]["kind"], e["t"]) or not verify(signer, e["sig"], e["record"]):
                 continue
             ok += 1
             self.schedule[e["record"]["exam_id"]] = e["record"]
-        if prev != signed_head["head"]["head"]:
-            return "장부 머리 불일치"
         kept = 0
         for eid, box in distributions.items():
             if eid in self.schedule:
                 self.locked[eid] = box
                 kept += 1
-        return f"장부 {len(registry.entries)}건 중 {ok}건을 직접 재검증, 잠긴 조각 값 묶음 {kept}건 보관(열쇠는 각 시험 시작 시각에 공개)"
+        return f"장부 {n}건 전체로 머클 루트를 다시 계산해 서명된 루트와 일치, {ok}건을 직접 재검증, 잠긴 조각 값 묶음 {kept}건 보관(열쇠는 각 시험 시작 시각에 공개)"
 
     def open_sets(self, t, keys):
         """Open the locked sets whose exam has started and check them against the log."""
@@ -355,7 +362,7 @@ def main():
     registry = Registry(ministry.public_key, operator_key, op_cert)
     log(t, "교육부", "국가 등록부와 공용 조회 서버를 운영할 기관을 지정", phase=P1,
         saw="운영 기관의 공개 키", not_seen="운영 기관의 비밀 키",
-        result="지정서 발급(교육부 서명). 운영 기관은 장부를 쌓고 장부 머리에 서명하며, 학교용 공용 조회 서버를 운영")
+        result="지정서 발급(교육부 서명). 운영 기관은 장부를 쌓고 장부 머리(머클 루트)에 서명하며, 학교용 공용 조회 서버를 운영")
 
     kice = Authority("시험 기관(한국교육과정평가원)", [])
     kice.chain = [ministry.accredit(kice.public_key, "한국교육과정평가원", ["수능", "모의평가"], YEAR_END)]
@@ -400,7 +407,7 @@ def main():
         saw="연동 시험 문항(실제 시험과 무관)", result=r)
     tbox, tkey = lock(tpub)
     log(t + 600, "AI 서비스", "장부와 잠긴 조각 값 묶음을 받아 동기화", phase=P2,
-        result=ai.sync(t + 600, registry, registry.signed_head(t + 600), {trec["exam_id"]: tbox}))
+        result=ai.sync(t + 600, registry, sth_test := registry.signed_head(t + 600), {trec["exam_id"]: tbox}))
     log(T(14, 0, -14), "시험 기관(한국교육과정평가원)", "연동 시험 시작 시각에 묶음 열쇠 공개", phase=P2,
         result="열쇠 32바이트 공개. AI 서비스: " + ai.open_sets(T(14, 0, -14), {trec["exam_id"]: tkey}))
     tpage, _ = print_page(E, F, 7070, TEST_ID)
@@ -484,8 +491,13 @@ def main():
 
     t = T(11, 0, -1)
     head = registry.signed_head(t)
-    log(t, "등록부 운영 기관", "장부 머리(건수와 마지막 연결값)에 운영 기관 키로 서명해 공개", phase=P4,
-        result=f"장부 {head['head']['size']}건, 마지막 연결값 {head['head']['head'][:12]}…. 운영 기관이 나중에 장부를 바꾸면 이 서명과 맞지 않음")
+    import transparency_log as TL
+    cproof = registry.consistency(sth_test["head"]["size"], head["head"]["size"])
+    c_ok = TL.verify_consistency(sth_test["head"]["size"], head["head"]["size"], bytes.fromhex(sth_test["head"]["root"]),
+                                 bytes.fromhex(head["head"]["root"]), cproof)
+    log(t, "등록부 운영 기관", "장부 머리(건수와 머클 루트, RFC 9162)에 운영 기관 키로 서명해 공개", phase=P4,
+        result=f"장부 {head['head']['size']}건, 루트 {head['head']['root'][:12]}…. 연동 시험 때의 장부 머리({sth_test['head']['size']}건)와의 "
+               f"일관성 증명 해시 {len(cproof)}개로 이전 기록이 바뀌지 않았음을 {'확인' if c_ok else '확인 실패'}")
     boxes = {eid: lock(pub) for eid, pub in plain.items()}
     dists = {eid: b for eid, (b, _) in boxes.items()}
     keys = {eid: k for eid, (_, k) in boxes.items()}
@@ -503,10 +515,15 @@ def main():
                for e in registry.entries if e["record"]["window_end"] > t]
     package = dict(windows=windows, head=head["head"])
     psig = maker_key.sign(canon(package)).hex()
+    idx = {e["record"]["exam_id"]: i for i, e in enumerate(registry.entries)}
+    proofs = {w["exam_id"]: registry.inclusion(idx[w["exam_id"]], head["head"]["size"]) for w in windows}
+    inc_ok = sum(TL.verify_inclusion(idx[w["exam_id"]], head["head"]["size"], TL.leaf_hash(canon(registry.entries[idx[w["exam_id"]]])),
+                                     proofs[w["exam_id"]], bytes.fromhex(head["head"]["root"])) for w in windows)
+    max_hashes = max(len(p_) for p_ in proofs.values())
     device = Device(maker_key.public_key())
-    log(t + 7200, "기기 제조사", "장부 머리 서명을 확인하고 시험 번호·시간 목록만 뽑아 제조사 서명으로 기기에 배포", phase=P4,
+    log(t + 7200, "기기 제조사", "장부 머리 서명과 시험마다의 포함 증명을 확인하고 시험 번호·시간 목록만 뽑아 제조사 서명으로 기기에 배포", phase=P4,
         saw=f"시험 {len(windows)}건의 번호와 시간", not_seen="문항, 조각 값, 사용자 사진",
-        result=device.install(package, psig))
+        result=f"포함 증명 {inc_ok}/{len(windows)}건 확인(시험당 해시 {max_hashes}개 이하, 장부 전체를 받지 않음). " + device.install(package, psig))
     forged = dict(package, windows=windows + [dict(exam_id="DEADBEEF", start=S, end=S + 20 * 3600)])
     log(t + 7260, "기기", "누군가 시험 하나를 끼워 넣은 목록을 받음", phase=P4,
         result=Device(maker_key.public_key()).install(forged, psig))
@@ -571,15 +588,24 @@ def main():
     salt, revealed = kice.reveal()
     ok = hashlib.sha256((salt + "\n".join(revealed)).encode()).hexdigest() == rec["items_commitment"]
     log(t, "시험 기관(한국교육과정평가원)", "시험 종료 후 문항과 약속값의 비밀 문자열을 공개", phase=P6, result="공개 완료")
-    prev, chain_ok = "0" * 64, True
-    for e in registry.entries:
-        body = {k: v for k, v in e.items() if k != "hash"}
-        chain_ok &= (e["prev"] == prev and hashlib.sha256(canon(body)).hexdigest() == e["hash"])
-        prev = e["hash"]
+    now = registry.signed_head(t)
+    same_root = TL.root([TL.leaf_hash(canon(e)) for e in registry.entries]).hex() == now["head"]["root"]
+    grew = TL.verify_consistency(head["head"]["size"], now["head"]["size"], bytes.fromhex(head["head"]["root"]),
+                                 bytes.fromhex(now["head"]["root"]), registry.consistency(head["head"]["size"], now["head"]["size"]))
     log(t, "누구나(사후 검증)", "공개 장부와 공개된 문항을 대조", phase=P6,
         saw="공개 장부 전체, 공개된 문항", not_seen="사용자의 질문",
-        result=f"장부 연결 {'정상' if chain_ok else '변조'}, 전날 공개된 장부 머리와 {'일치' if prev == head['head']['head'] else '불일치'},"
+        result=f"장부 루트 {'일치' if same_root else '불일치'}, 전날 공개된 장부 머리에서 이어진 장부임을 일관성 증명으로 {'확인' if grew else '확인 실패'},"
                f" 문항이 시험 전 약속값과 {'일치' if ok else '불일치'}, 이 시험의 차단 시간은 {fmt(S)}~{fmt(E1)}")
+    forged_entries = [dict(e) for e in registry.entries]
+    forged_entries[2] = dict(forged_entries[2], record=dict(forged_entries[2]["record"], window_end=forged_entries[2]["record"]["window_end"] + 3600))
+    forged_log = TL.Log()
+    for e in forged_entries:
+        forged_log.append(canon(e))
+    caught = not TL.verify_consistency(head["head"]["size"], forged_log.size(), bytes.fromhex(head["head"]["root"]),
+                                       forged_log.root(), forged_log.consistency(head["head"]["size"]))
+    log(t, "누구나(사후 검증)", "운영 기관이 지난 기록 하나(3번째 시험의 종료 시각)를 고친 장부를 내놓았다고 가정하고 확인", phase=P6,
+        saw="고친 장부와 그 일관성 증명, 전날 공개된 장부 머리", not_seen="사용자의 질문",
+        result=f"전날 장부 머리에서 이어진다는 증명이 {'성립하지 않아 변조를 찾아냄' if caught else '성립함(변조를 놓침)'}")
     log(t, "AI 서비스", "시험별 거절 건수를 교육부에 보고(기기 내장 AI의 거절은 제조사가 따로 집계)", phase=P6,
         not_seen="개인 정보(저장하지 않음)",
         result=", ".join(f"시험 {k}: {v}건" for k, v in ai.refusals.items() if k != f"{TEST_ID:08X}") or "0건")
@@ -623,7 +649,7 @@ def write_outputs(out, d):
     intro = (f"{ex['title']}, 시험 번호 {ex['exam_id']}, 시험 시간 {ex['start']}~{ex['end']}. "
              "각 기관은 자기가 가진 정보만으로 움직입니다. 판정은 `code/operation_demo.py`를 실행한 실제 계산 결과입니다. "
              "사진은 시뮬레이션으로 만든 것이며, 보안 문양은 실험에 쓴 진한 농도(70%)로 인쇄했습니다(목표 외관은 훨씬 옅음). "
-             "키는 실행할 때마다 새로 만들어지므로 약속값, 요약값, 연결값은 실행마다 달라집니다.")
+             "키는 실행할 때마다 새로 만들어지므로 약속값, 요약값, 머클 루트는 실행마다 달라집니다.")
     page = f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>시험 보호 국가 등록제: 운영 과정 시연</title><style>
 body{{font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;margin:24px;color:#111;line-height:1.55;max-width:1200px}}

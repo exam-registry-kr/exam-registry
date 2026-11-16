@@ -14,7 +14,7 @@
   "rebuilt_exactly": 60,
   "of": 60,
   "distinct_pieces_guessed": 9138,
-  "seconds": 8.8,
+  "seconds": 8.3,
   "examples": [
    {
     "original": "다미는 사과 168개를 가지고 있다. 예나가 다미에게 사과 75개를 더 주었고, 다미는 그중 4개를 나누어 주었다. 남은 사과의 개수를 구하시오.",
@@ -34,7 +34,7 @@
   "mean_pieces_covered": 0.8683,
   "candidates_tested": 883210,
   "distinct_pieces_guessed": 6467,
-  "seconds": 33.0,
+  "seconds": 32.9,
   "rows": [
    {
     "parts": 10,
@@ -402,7 +402,7 @@
   "distinct_pieces_guessed": 18605,
   "pieces_per_ordinary_question": 132.6,
   "same_as_ordinary_questions": 140,
-  "authority_cpu_minutes": 0.1,
+  "authority_cpu_minutes": 0.2,
   "note": "authority time per piece from E7 on one CPU"
  },
  "encrypted_equivalence": {

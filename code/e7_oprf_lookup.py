@@ -15,14 +15,14 @@ item.
 
 Arms
   plain : pieces hashed with SHA-256, no encryption (comparison group)
-  oprf  : pieces evaluated with a 2HashDH OPRF on the NIST P-256 curve
+  oprf  : pieces evaluated with OPRF(P-256, SHA-256) of RFC 9497, base mode, with
+          hash_to_curve P256_XMD:SHA-256_SSWU_RO_ of RFC 9380 (module rfc9497.py,
+          checked against the official CFRG test vectors)
   e3    : the TF-IDF matcher of E3, reported for reference (different rule)
 
-The OPRF here uses x-coordinate-only scalar multiplication through the
-`cryptography` package and a simple try-and-increment hash to the curve. It shows the
-cost of the elliptic-curve operations a real deployment performs, but it is NOT an
-RFC 9497 implementation (RFC 9497 fixes the hash-to-curve method, encodings and
-domain separation). Timings are for this demonstration on one CPU core.
+Scalar multiplications run in OpenSSL through the `cryptography` package; field
+arithmetic, the SSWU map and encodings are plain Python. Timings are for this
+implementation on one CPU core.
 
     python e7_oprf_lookup.py            # about one minute
 """
@@ -32,43 +32,20 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from sklearn.feature_extraction.text import TfidfVectorizer
 import e3_registry as E3
 
-# NIST P-256
-Pp = 2**256 - 2**224 + 2**192 + 2**96 - 1
-Bp = 0x5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B
-Np = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
+import rfc9497 as R
+
+# NIST P-256 (kept for code that imports these names)
+Pp, Bp, Np = R.p, R.B, R.N
 CURVE = ec.SECP256R1()
 TH = 0.5
 
 
-def lift(x):
-    """A curve point with x-coordinate x, or None. Either root works: kP and k(-P) share x."""
-    rhs = (pow(x, 3, Pp) - 3 * x + Bp) % Pp
-    y = pow(rhs, (Pp + 1) // 4, Pp)
-    if y * y % Pp != rhs:
-        return None
-    return ec.EllipticCurvePublicKey.from_encoded_point(CURVE, b"\x04" + x.to_bytes(32, "big") + y.to_bytes(32, "big"))
-
-
-def hash_to_point(s):
-    for ctr in range(256):
-        x = int.from_bytes(hashlib.sha256(f"exam-registry-e7|{ctr}|{s}".encode()).digest(), "big") % Pp
-        P = lift(x)
-        if P is not None:
-            return P
-    raise ValueError("hash_to_point failed")
-
-
-def mul_x(k, P):
-    """x-coordinate of k*P, computed by the cryptography package (OpenSSL)."""
-    return int.from_bytes(ec.derive_private_key(k, CURVE).exchange(ec.ECDH(), P), "big")
-
-
 class Authority:
-    """Holds the secret key and the items. Publishes F_k(piece) for every piece before the exam."""
+    """Holds the secret key and the items. Publishes F_k(piece) for every piece before the exam.
+    F_k(piece) is the RFC 9497 OPRF output, hex, of the piece in UTF-8."""
 
-    def __init__(self, items, pieces_fn):
-        self._k = secrets.randbelow(Np - 1) + 1
-        self._key = ec.derive_private_key(self._k, CURVE)
+    def __init__(self, items, pieces_fn, key=None):
+        self._k = R.random_scalar() if key is None else key
         self.published = []
         for it in items:
             g, n = pieces_fn(it)
@@ -77,28 +54,22 @@ class Authority:
         self.server_seconds = 0.0
 
     def _F(self, x):
-        return hashlib.sha256(int.from_bytes(self._key.exchange(ec.ECDH(), hash_to_point(x)), "big")
-                              .to_bytes(32, "big") + x.encode()).hexdigest()
+        return R.evaluate(self._k, x.encode()).hex()
 
-    def evaluate(self, blinded_xs):
-        """Sees only blinded x-coordinates; returns x(k * B) for each."""
+    def evaluate(self, blinded):
+        """Sees only blinded elements (33-byte encodings); returns k * B for each (RFC 9497 BlindEvaluate)."""
         t = time.perf_counter()
-        out = [int.from_bytes(self._key.exchange(ec.ECDH(), lift(bx)), "big") for bx in blinded_xs]
+        out = [R.blind_evaluate(self._k, b) for b in blinded]
         self.server_seconds += time.perf_counter() - t
-        self.evaluations += len(blinded_xs)
+        self.evaluations += len(blinded)
         return out
 
 
 def oprf(server, xs):
-    xs = list(xs)
-    rs = [secrets.randbelow(Np - 1) + 1 for _ in xs]
-    blinded = [mul_x(r, hash_to_point(x)) for x, r in zip(xs, rs)]            # service -> authority
-    evaluated = server.evaluate(blinded)                                       # authority -> service
-    out = set()
-    for x, r, e in zip(xs, rs, evaluated):
-        y = mul_x(pow(r, -1, Np), lift(e))                                     # = x(k * H(x))
-        out.add(hashlib.sha256(y.to_bytes(32, "big") + x.encode()).hexdigest())
-    return out
+    xs = [x.encode() for x in xs]
+    bl = [R.blind(x) for x in xs]                                              # service -> authority
+    evaluated = server.evaluate([b for _, b in bl])                            # authority -> service
+    return {R.finalize(x, r, e).hex() for x, (r, _), e in zip(xs, bl, evaluated)}
 
 
 def pieces(text):
@@ -185,14 +156,14 @@ def main():
         identical_decisions=dict(count=same, total=len(rows)),
         detection_and_false_match=table,
         timing=dict(
-            note="2HashDH OPRF on P-256 via the cryptography package, one CPU core; not RFC 9497",
+            note="OPRF(P-256, SHA-256) of RFC 9497, base mode, one CPU core; scalar multiplication in OpenSSL, the rest in Python",
             publish_seconds=round(publish_s, 3), published_values=n_pub,
             pieces_per_query_median=statistics.median(npieces),
             client_total_ms_median=round(1000 * statistics.median(lat), 2),
             client_total_ms_p95=round(1000 * float(np.percentile(lat, 95)), 2),
             authority_ms_per_query_median=round(1000 * statistics.median(srv), 3),
             authority_us_per_piece=round(1e6 * auth.server_seconds / max(1, auth.evaluations), 2),
-            bytes_per_piece_each_way=32),
+            bytes_per_piece_each_way=33),
         rows=rows)
     json.dump(res, open(out_path, "w"), indent=1, ensure_ascii=False)
 

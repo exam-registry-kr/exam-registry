@@ -32,6 +32,9 @@ Rules compared
       remaining pieces are found in one item and they are at least a share S of what
       remains. S is chosen on one set of items (lowest value in the sweep at which no
       practice problem is refused) and then fixed and tested on a new set of items.
+  R3  chosen later in E14 on more kinds of question: as R2, but at least min(60, 60% of the
+      matched item's own pieces) must match, share 0.6 (E9's values refused quoted parts of
+      practice problems)
 
 A question with a number other than 1 to 5 is handled by R1 and R2 exactly as in E8.
 Baseline: R0 on the EN items alone must reproduce E8's figures at 60 items.
@@ -51,6 +54,9 @@ from e8_registry_scale import numbers_count
 
 SEED_SELECT, SEED_VALIDATE = 20261119, 20261120
 M_MIN = 20
+# Rule R3, chosen later in E14: for a question without numbers, at least min(CAP, FRAC x the
+# matched item's own pieces) pieces must match, and the share must be at least SHARE.
+R3_VALUES = dict(cap=60, frac=0.6, share=0.6)
 SWEEP_M, SWEEP_TH = [0, 10, 20, 30], [0.5, 0.6, 0.7, 0.8]
 
 # ---------------------------------------------------------------- Korean word problems (KN)
@@ -259,6 +265,16 @@ class Registry:
         s = v / max(1, len(qg))
         return bool(i >= 0 and s >= TH), i, s
 
+    def r3(self, q, cap=R3_VALUES["cap"], frac=R3_VALUES["frac"], th=R3_VALUES["share"]):
+        """R2 with a floor that grows with the matched item: min(cap, ceil(frac x its pieces))."""
+        if strong_number(q):
+            return self._numeric(q)
+        rest = pieces(nk(q))[0] - self.stem
+        i, v = self._top(self.inv, rest)
+        s = v / max(1, len(rest))
+        floor = min(cap, -(-frac * len(self.g[i] - self.stem) // 1)) if i >= 0 else cap
+        return bool(i >= 0 and v >= floor and s >= th), i, s
+
     def r2(self, q, m=M_MIN, th=0.5):
         if strong_number(q):
             return self._numeric(q)
@@ -328,7 +344,7 @@ NEG = ("practice", "stem_only", "same_passage_other_question")
 def evaluate(seed, th_t):
     items, stems, qs, n_en = build(seed)
     reg = Registry(items, stems)
-    rules = dict(R0=reg.r0, R1=reg.r1, R2=lambda q: reg.r2(q, M_MIN, th_t))
+    rules = dict(R0=reg.r0, R1=reg.r1, R2=lambda q: reg.r2(q, M_MIN, th_t), R3=reg.r3)
     rows = []
     for group, kind, qi, q in qs:
         row = dict(group=group, kind=kind, item=qi, strong_number=strong_number(q))
@@ -358,13 +374,14 @@ def show(table):
         t = table[group]
         print("  ", group, "rewritten refused", t["refused_rewritten"])
         for k, v in t["refused_other"].items():
-            print(f"      {k}: refused R0 {v['R0']}, R1 {v['R1']}, R2 {v['R2']} of {v['of']}")
+            print(f"      {k}: refused R0 {v['R0']}, R1 {v['R1']}, R2 {v['R2']}, R3 {v['R3']} of {v['of']}")
 
 
 def main():
     out_path = sys.argv[1] if len(sys.argv) > 1 else "E9-001_results.json"
     out = dict(experiment="E9-001", seeds=dict(select=SEED_SELECT, validate=SEED_VALIDATE),
-               n_registered=dict(EN=60, KN=60, KT=60), threshold_numeric=TH, min_pieces_text=M_MIN)
+               n_registered=dict(EN=60, KN=60, KT=60), threshold_numeric=TH, min_pieces_text=M_MIN,
+               r3_values_from_E14=R3_VALUES)
 
     # baseline: R0 with the EN items alone = E8 at 60 items
     items, stems, qs, n_en = build(SEED_SELECT)

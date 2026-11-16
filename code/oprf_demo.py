@@ -3,7 +3,9 @@
 This file shows the idea in a few lines of plain Python. It is NOT an
 implementation of RFC 9497: it uses the 2048-bit MODP group of RFC 3526 and
 Python integers instead of an elliptic-curve suite, and it is not hardened
-against timing attacks. A real deployment should use an RFC 9497 library.
+against timing attacks. The experiments (E7 onwards) and operation_demo.py use
+rfc9497.py, an implementation of RFC 9497 OPRF(P-256, SHA-256) checked against
+the official test vectors.
 
 Roles
   Authority : holds the secret key k and the exam items. Before the exam it

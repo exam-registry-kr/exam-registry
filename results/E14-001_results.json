@@ -9283,60 +9283,154 @@
      "share": 0.6,
      "short_practice_refused_per_1000": 89.05,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 1.0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9967,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.8033,
+      "KN": 0.7767,
+      "KT": 1.0
+     },
      "errors_5_refused": 1.0,
-     "errors_10_refused": 0.8556
+     "errors_10_refused": 0.8556,
+     "same_passage_other_question_refused": [
+      53,
+      60
+     ]
     },
     {
      "min_pieces": 40,
      "share": 0.6,
      "short_practice_refused_per_1000": 26.0,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.9733,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9967,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.77,
+      "KN": 0.76,
+      "KT": 0.9733
+     },
      "errors_5_refused": 1.0,
-     "errors_10_refused": 0.8556
+     "errors_10_refused": 0.8556,
+     "same_passage_other_question_refused": [
+      53,
+      60
+     ]
     },
     {
      "min_pieces": 40,
      "share": 0.7,
      "short_practice_refused_per_1000": 6.3,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.9733,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9967,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.77,
+      "KN": 0.76,
+      "KT": 0.9733
+     },
      "errors_5_refused": 0.9889,
-     "errors_10_refused": 0.2056
+     "errors_10_refused": 0.2056,
+     "same_passage_other_question_refused": [
+      20,
+      60
+     ]
     },
     {
      "min_pieces": 50,
      "share": 0.6,
      "short_practice_refused_per_1000": 14.18,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.82,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9967,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7633,
+      "KN": 0.76,
+      "KT": 0.82
+     },
      "errors_5_refused": 1.0,
-     "errors_10_refused": 0.8556
+     "errors_10_refused": 0.8556,
+     "same_passage_other_question_refused": [
+      53,
+      60
+     ]
     },
     {
      "min_pieces": 60,
      "share": 0.6,
      "short_practice_refused_per_1000": 6.3,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.7767,
+     "rewritten_refused": {
+      "EN": 0.9861,
+      "KN": 0.9967,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7567,
+      "KN": 0.76,
+      "KT": 0.7767
+     },
      "errors_5_refused": 1.0,
-     "errors_10_refused": 0.8556
+     "errors_10_refused": 0.8556,
+     "same_passage_other_question_refused": [
+      53,
+      60
+     ]
     },
     {
      "min_pieces": 60,
      "share": 0.7,
      "short_practice_refused_per_1000": 0.79,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.7767,
+     "rewritten_refused": {
+      "EN": 0.9861,
+      "KN": 0.9967,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7567,
+      "KN": 0.76,
+      "KT": 0.7767
+     },
      "errors_5_refused": 0.9889,
-     "errors_10_refused": 0.2056
+     "errors_10_refused": 0.2056,
+     "same_passage_other_question_refused": [
+      20,
+      60
+     ]
+    },
+    {
+     "min_pieces": "R3",
+     "share": 0.6,
+     "short_practice_refused_per_1000": 7.09,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9967,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.76,
+      "KN": 0.76,
+      "KT": 0.7767
+     },
+     "errors_5_refused": 1.0,
+     "errors_10_refused": 0.8556,
+     "same_passage_other_question_refused": [
+      53,
+      60
+     ]
     }
    ]
   },
@@ -9348,96 +9442,574 @@
      "share": 0.6,
      "short_practice_refused_per_1000": 76.07,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 1.0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9867,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.8,
+      "KN": 0.81,
+      "KT": 1.0
+     },
      "errors_5_refused": 1.0,
      "errors_10_refused": 0.8556,
-     "split_4_last_1": 1.0,
-     "split_4_last_2": 1.0,
-     "split_4_last_all": 1.0,
-     "split_8_last_1": 1.0,
-     "split_8_last_2": 1.0,
-     "split_8_last_all": 1.0
+     "same_passage_other_question_refused": [
+      59,
+      60
+     ],
+     "split_4_last_1": {
+      "EN": 0.5,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_4_last_1_resolve": {
+      "EN": 0.5,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_4_last_2": {
+      "EN": 0.9167,
+      "KN": 0.2833,
+      "KT": 1.0
+     },
+     "split_4_last_2_resolve": {
+      "EN": 0.9167,
+      "KN": 0.4667,
+      "KT": 1.0
+     },
+     "split_4_last_all": {
+      "EN": 0.9167,
+      "KN": 0.5833,
+      "KT": 1.0
+     },
+     "split_4_last_all_resolve": {
+      "EN": 0.9667,
+      "KN": 1.0,
+      "KT": 1.0
+     },
+     "split_8_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_2": {
+      "EN": 0.6,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_2_resolve": {
+      "EN": 0.7333,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_all": {
+      "EN": 0.9167,
+      "KN": 0.5833,
+      "KT": 1.0
+     },
+     "split_8_last_all_resolve": {
+      "EN": 0.9667,
+      "KN": 1.0,
+      "KT": 1.0
+     }
     },
     {
      "min_pieces": 40,
      "share": 0.6,
      "short_practice_refused_per_1000": 14.26,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.97,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9833,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.76,
+      "KN": 0.8033,
+      "KT": 0.97
+     },
      "errors_5_refused": 1.0,
      "errors_10_refused": 0.8556,
-     "split_4_last_1": 1.0,
-     "split_4_last_2": 1.0,
-     "split_4_last_all": 1.0,
-     "split_8_last_1": 0.0,
-     "split_8_last_2": 1.0,
-     "split_8_last_all": 1.0
+     "same_passage_other_question_refused": [
+      59,
+      60
+     ],
+     "split_4_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_4_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_4_last_2": {
+      "EN": 0.4,
+      "KN": 0.1,
+      "KT": 1.0
+     },
+     "split_4_last_2_resolve": {
+      "EN": 0.4833,
+      "KN": 0.2167,
+      "KT": 1.0
+     },
+     "split_4_last_all": {
+      "EN": 0.9167,
+      "KN": 0.3,
+      "KT": 1.0
+     },
+     "split_4_last_all_resolve": {
+      "EN": 0.9667,
+      "KN": 0.9167,
+      "KT": 1.0
+     },
+     "split_8_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_2": {
+      "EN": 0.1167,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_2_resolve": {
+      "EN": 0.2333,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_all": {
+      "EN": 0.9167,
+      "KN": 0.3,
+      "KT": 1.0
+     },
+     "split_8_last_all_resolve": {
+      "EN": 0.9667,
+      "KN": 0.9167,
+      "KT": 1.0
+     }
     },
     {
      "min_pieces": 40,
      "share": 0.7,
      "short_practice_refused_per_1000": 6.34,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.97,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9833,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.76,
+      "KN": 0.8033,
+      "KT": 0.97
+     },
      "errors_5_refused": 0.9889,
      "errors_10_refused": 0.2111,
-     "split_4_last_1": 1.0,
-     "split_4_last_2": 1.0,
-     "split_4_last_all": 1.0,
-     "split_8_last_1": 0.0,
-     "split_8_last_2": 1.0,
-     "split_8_last_all": 1.0
+     "same_passage_other_question_refused": [
+      28,
+      60
+     ],
+     "split_4_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_4_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_4_last_2": {
+      "EN": 0.4,
+      "KN": 0.1,
+      "KT": 1.0
+     },
+     "split_4_last_2_resolve": {
+      "EN": 0.4833,
+      "KN": 0.2167,
+      "KT": 1.0
+     },
+     "split_4_last_all": {
+      "EN": 0.9167,
+      "KN": 0.3,
+      "KT": 1.0
+     },
+     "split_4_last_all_resolve": {
+      "EN": 0.9667,
+      "KN": 0.9167,
+      "KT": 1.0
+     },
+     "split_8_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_2": {
+      "EN": 0.1167,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_2_resolve": {
+      "EN": 0.2333,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_all": {
+      "EN": 0.9167,
+      "KN": 0.3,
+      "KT": 1.0
+     },
+     "split_8_last_all_resolve": {
+      "EN": 0.9667,
+      "KN": 0.9167,
+      "KT": 1.0
+     }
     },
     {
      "min_pieces": 50,
      "share": 0.6,
      "short_practice_refused_per_1000": 2.38,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.83,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9833,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7533,
+      "KN": 0.8033,
+      "KT": 0.83
+     },
      "errors_5_refused": 1.0,
      "errors_10_refused": 0.8556,
-     "split_4_last_1": 1.0,
-     "split_4_last_2": 1.0,
-     "split_4_last_all": 1.0,
-     "split_8_last_1": 0.0,
-     "split_8_last_2": 1.0,
-     "split_8_last_all": 1.0
+     "same_passage_other_question_refused": [
+      59,
+      60
+     ],
+     "split_4_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_4_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_4_last_2": {
+      "EN": 0.3333,
+      "KN": 0.1,
+      "KT": 1.0
+     },
+     "split_4_last_2_resolve": {
+      "EN": 0.3167,
+      "KN": 0.2167,
+      "KT": 1.0
+     },
+     "split_4_last_all": {
+      "EN": 0.7833,
+      "KN": 0.2333,
+      "KT": 1.0
+     },
+     "split_4_last_all_resolve": {
+      "EN": 0.8833,
+      "KN": 0.9167,
+      "KT": 1.0
+     },
+     "split_8_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_2": {
+      "EN": 0.1167,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_2_resolve": {
+      "EN": 0.2333,
+      "KN": 0.0,
+      "KT": 1.0
+     },
+     "split_8_last_all": {
+      "EN": 0.7833,
+      "KN": 0.2333,
+      "KT": 1.0
+     },
+     "split_8_last_all_resolve": {
+      "EN": 0.8833,
+      "KN": 0.9167,
+      "KT": 1.0
+     }
     },
     {
      "min_pieces": 60,
      "share": 0.6,
      "short_practice_refused_per_1000": 0.79,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.7733,
+     "rewritten_refused": {
+      "EN": 0.9861,
+      "KN": 0.9833,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7433,
+      "KN": 0.8033,
+      "KT": 0.7733
+     },
      "errors_5_refused": 1.0,
      "errors_10_refused": 0.8556,
-     "split_4_last_1": 0.5,
-     "split_4_last_2": 1.0,
-     "split_4_last_all": 1.0,
-     "split_8_last_1": 0.0,
-     "split_8_last_2": 0.5667,
-     "split_8_last_all": 1.0
+     "same_passage_other_question_refused": [
+      59,
+      60
+     ],
+     "split_4_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.5
+     },
+     "split_4_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.5
+     },
+     "split_4_last_2": {
+      "EN": 0.3333,
+      "KN": 0.1,
+      "KT": 1.0
+     },
+     "split_4_last_2_resolve": {
+      "EN": 0.3167,
+      "KN": 0.2167,
+      "KT": 1.0
+     },
+     "split_4_last_all": {
+      "EN": 0.5667,
+      "KN": 0.2333,
+      "KT": 1.0
+     },
+     "split_4_last_all_resolve": {
+      "EN": 0.8,
+      "KN": 0.9167,
+      "KT": 1.0
+     },
+     "split_8_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_2": {
+      "EN": 0.1167,
+      "KN": 0.0,
+      "KT": 0.5667
+     },
+     "split_8_last_2_resolve": {
+      "EN": 0.2333,
+      "KN": 0.0,
+      "KT": 0.5667
+     },
+     "split_8_last_all": {
+      "EN": 0.5667,
+      "KN": 0.2333,
+      "KT": 1.0
+     },
+     "split_8_last_all_resolve": {
+      "EN": 0.8,
+      "KN": 0.9167,
+      "KT": 1.0
+     }
     },
     {
      "min_pieces": 60,
      "share": 0.7,
      "short_practice_refused_per_1000": 0.0,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.7733,
+     "rewritten_refused": {
+      "EN": 0.9861,
+      "KN": 0.9833,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7433,
+      "KN": 0.8033,
+      "KT": 0.7733
+     },
      "errors_5_refused": 0.9889,
      "errors_10_refused": 0.2111,
-     "split_4_last_1": 0.5,
-     "split_4_last_2": 1.0,
-     "split_4_last_all": 1.0,
-     "split_8_last_1": 0.0,
-     "split_8_last_2": 0.5667,
-     "split_8_last_all": 1.0
+     "same_passage_other_question_refused": [
+      28,
+      60
+     ],
+     "split_4_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.5
+     },
+     "split_4_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.5
+     },
+     "split_4_last_2": {
+      "EN": 0.3333,
+      "KN": 0.1,
+      "KT": 1.0
+     },
+     "split_4_last_2_resolve": {
+      "EN": 0.3167,
+      "KN": 0.2167,
+      "KT": 1.0
+     },
+     "split_4_last_all": {
+      "EN": 0.5667,
+      "KN": 0.2333,
+      "KT": 1.0
+     },
+     "split_4_last_all_resolve": {
+      "EN": 0.8,
+      "KN": 0.9167,
+      "KT": 1.0
+     },
+     "split_8_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_2": {
+      "EN": 0.1167,
+      "KN": 0.0,
+      "KT": 0.5667
+     },
+     "split_8_last_2_resolve": {
+      "EN": 0.2333,
+      "KN": 0.0,
+      "KT": 0.5667
+     },
+     "split_8_last_all": {
+      "EN": 0.5667,
+      "KN": 0.2333,
+      "KT": 1.0
+     },
+     "split_8_last_all_resolve": {
+      "EN": 0.8,
+      "KN": 0.9167,
+      "KT": 1.0
+     }
+    },
+    {
+     "min_pieces": "R3",
+     "share": 0.6,
+     "short_practice_refused_per_1000": 0.79,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9867,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7533,
+      "KN": 0.8033,
+      "KT": 0.7733
+     },
+     "errors_5_refused": 1.0,
+     "errors_10_refused": 0.8556,
+     "same_passage_other_question_refused": [
+      59,
+      60
+     ],
+     "split_4_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.5
+     },
+     "split_4_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.5
+     },
+     "split_4_last_2": {
+      "EN": 0.4,
+      "KN": 0.1,
+      "KT": 1.0
+     },
+     "split_4_last_2_resolve": {
+      "EN": 0.4,
+      "KN": 0.2167,
+      "KT": 1.0
+     },
+     "split_4_last_all": {
+      "EN": 0.9167,
+      "KN": 0.5,
+      "KT": 1.0
+     },
+     "split_4_last_all_resolve": {
+      "EN": 1.0,
+      "KN": 1.0,
+      "KT": 1.0
+     },
+     "split_8_last_1": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_1_resolve": {
+      "EN": 0.0,
+      "KN": 0.0,
+      "KT": 0.0
+     },
+     "split_8_last_2": {
+      "EN": 0.1167,
+      "KN": 0.0,
+      "KT": 0.5667
+     },
+     "split_8_last_2_resolve": {
+      "EN": 0.2333,
+      "KN": 0.0,
+      "KT": 0.5667
+     },
+     "split_8_last_all": {
+      "EN": 0.9167,
+      "KN": 0.5,
+      "KT": 1.0
+     },
+     "split_8_last_all_resolve": {
+      "EN": 1.0,
+      "KN": 1.0,
+      "KT": 1.0
+     }
     }
    ]
   },
@@ -9449,60 +10021,313 @@
      "share": 0.6,
      "short_practice_refused_per_1000": 90.77,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 1.0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9967,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.86,
+      "KN": 0.8167,
+      "KT": 1.0
+     },
      "errors_5_refused": 1.0,
-     "errors_10_refused": 0.85
+     "errors_10_refused": 0.85,
+     "same_passage_other_question_refused": [
+      54,
+      60
+     ]
     },
     {
      "min_pieces": 40,
      "share": 0.6,
      "short_practice_refused_per_1000": 24.26,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.9667,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9933,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.84,
+      "KN": 0.8067,
+      "KT": 0.9667
+     },
      "errors_5_refused": 1.0,
-     "errors_10_refused": 0.85
+     "errors_10_refused": 0.85,
+     "same_passage_other_question_refused": [
+      54,
+      60
+     ]
     },
     {
      "min_pieces": 40,
      "share": 0.7,
      "short_practice_refused_per_1000": 7.82,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 0.9979,
-     "short_copy_refused": 0.9667,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9933,
+      "KT": 0.9979
+     },
+     "short_copy_refused": {
+      "EN": 0.84,
+      "KN": 0.8067,
+      "KT": 0.9667
+     },
      "errors_5_refused": 0.9667,
-     "errors_10_refused": 0.1778
+     "errors_10_refused": 0.1778,
+     "same_passage_other_question_refused": [
+      20,
+      60
+     ]
     },
     {
      "min_pieces": 50,
      "share": 0.6,
      "short_practice_refused_per_1000": 10.17,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.8333,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9933,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.83,
+      "KN": 0.8067,
+      "KT": 0.8333
+     },
      "errors_5_refused": 1.0,
-     "errors_10_refused": 0.85
+     "errors_10_refused": 0.85,
+     "same_passage_other_question_refused": [
+      54,
+      60
+     ]
     },
     {
      "min_pieces": 60,
      "share": 0.6,
      "short_practice_refused_per_1000": 6.26,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 1.0,
-     "short_copy_refused": 0.7833,
+     "rewritten_refused": {
+      "EN": 0.9861,
+      "KN": 0.9933,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.8267,
+      "KN": 0.8067,
+      "KT": 0.7833
+     },
      "errors_5_refused": 1.0,
-     "errors_10_refused": 0.85
+     "errors_10_refused": 0.85,
+     "same_passage_other_question_refused": [
+      54,
+      60
+     ]
     },
     {
      "min_pieces": 60,
      "share": 0.7,
      "short_practice_refused_per_1000": 0.78,
      "practice_and_stems_refused": 0,
-     "rewritten_refused": 0.9979,
-     "short_copy_refused": 0.7833,
+     "rewritten_refused": {
+      "EN": 0.9861,
+      "KN": 0.9933,
+      "KT": 0.9979
+     },
+     "short_copy_refused": {
+      "EN": 0.8267,
+      "KN": 0.8067,
+      "KT": 0.7833
+     },
      "errors_5_refused": 0.9667,
-     "errors_10_refused": 0.1778
+     "errors_10_refused": 0.1778,
+     "same_passage_other_question_refused": [
+      20,
+      60
+     ]
+    },
+    {
+     "min_pieces": "R3",
+     "share": 0.6,
+     "short_practice_refused_per_1000": 8.61,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9933,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.83,
+      "KN": 0.8067,
+      "KT": 0.7833
+     },
+     "errors_5_refused": 1.0,
+     "errors_10_refused": 0.85,
+     "same_passage_other_question_refused": [
+      54,
+      60
+     ]
+    }
+   ]
+  },
+  "confirm": {
+   "short_practice_parts": 1279,
+   "points": [
+    {
+     "min_pieces": 20,
+     "share": 0.6,
+     "short_practice_refused_per_1000": 101.64,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.9933,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.82,
+      "KN": 0.8033,
+      "KT": 1.0
+     },
+     "errors_5_refused": 1.0,
+     "errors_10_refused": 0.8778,
+     "same_passage_other_question_refused": [
+      58,
+      60
+     ]
+    },
+    {
+     "min_pieces": 40,
+     "share": 0.6,
+     "short_practice_refused_per_1000": 26.58,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.99,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7933,
+      "KN": 0.7967,
+      "KT": 0.96
+     },
+     "errors_5_refused": 1.0,
+     "errors_10_refused": 0.8778,
+     "same_passage_other_question_refused": [
+      58,
+      60
+     ]
+    },
+    {
+     "min_pieces": 40,
+     "share": 0.7,
+     "short_practice_refused_per_1000": 9.38,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.99,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7933,
+      "KN": 0.7967,
+      "KT": 0.96
+     },
+     "errors_5_refused": 0.9778,
+     "errors_10_refused": 0.2333,
+     "same_passage_other_question_refused": [
+      22,
+      60
+     ]
+    },
+    {
+     "min_pieces": 50,
+     "share": 0.6,
+     "short_practice_refused_per_1000": 10.95,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.99,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7833,
+      "KN": 0.7967,
+      "KT": 0.8267
+     },
+     "errors_5_refused": 1.0,
+     "errors_10_refused": 0.8778,
+     "same_passage_other_question_refused": [
+      58,
+      60
+     ]
+    },
+    {
+     "min_pieces": 60,
+     "share": 0.6,
+     "short_practice_refused_per_1000": 3.91,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9861,
+      "KN": 0.99,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7833,
+      "KN": 0.7967,
+      "KT": 0.7633
+     },
+     "errors_5_refused": 1.0,
+     "errors_10_refused": 0.8778,
+     "same_passage_other_question_refused": [
+      58,
+      60
+     ]
+    },
+    {
+     "min_pieces": 60,
+     "share": 0.7,
+     "short_practice_refused_per_1000": 2.35,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9861,
+      "KN": 0.99,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7833,
+      "KN": 0.7967,
+      "KT": 0.7633
+     },
+     "errors_5_refused": 0.9778,
+     "errors_10_refused": 0.2333,
+     "same_passage_other_question_refused": [
+      22,
+      60
+     ]
+    },
+    {
+     "min_pieces": "R3",
+     "share": 0.6,
+     "short_practice_refused_per_1000": 4.69,
+     "practice_and_stems_refused": 0,
+     "rewritten_refused": {
+      "EN": 0.9889,
+      "KN": 0.99,
+      "KT": 1.0
+     },
+     "short_copy_refused": {
+      "EN": 0.7833,
+      "KN": 0.7967,
+      "KT": 0.7633
+     },
+     "errors_5_refused": 1.0,
+     "errors_10_refused": 0.8778,
+     "same_passage_other_question_refused": [
+      58,
+      60
+     ]
     }
    ]
   }

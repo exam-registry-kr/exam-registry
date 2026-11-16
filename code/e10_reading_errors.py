@@ -13,6 +13,8 @@ characters 60% are replaced by a similar one (Hangul: another final consonant or
 digit: another digit; letter: another letter; circled digit: another circled digit),
 20% are dropped and 20% are doubled.
 Baseline: p = 0 must give E9's decisions for undamaged copies.
+Arms: rule R2 with E9's values, and rule R3 with the values E14 chose (E9.R3_VALUES),
+on the same damaged copies.
 
     python e10_reading_errors.py          # about half a minute
 """
@@ -64,32 +66,41 @@ def main():
     group = lambda i: ("EN", "KN", "KT")[i // 60]
     practice = [(g, q) for g, k, _, q in qs if k == "practice"]
     r = np.random.default_rng(SEED)
-    out = dict(experiment="E10-001", seed=SEED, share_text=th_t, min_pieces_text=E9.M_MIN, rates=RATES,
+    out = dict(experiment="E10-001", seed=SEED, share_text=th_t, min_pieces_text=E9.M_MIN, r3=E9.R3_VALUES, rates=RATES,
                copies_per_item=COPIES, by_rate={})
     base_ok = all(reg.r2(t, E9.M_MIN, th_t)[:2] == (True, i) for i, t in enumerate(items))
     out["baseline_undamaged_copies_all_refused"] = base_ok
     print("baseline: undamaged copies all refused with their own item:", base_ok)
     for p in RATES:
         hit = {g: [] for g in ("EN", "KN", "KT")}
+        hit3 = {g: [] for g in ("EN", "KN", "KT")}
         num_fail = {g: 0 for g in ("EN", "KN")}
         for i, t in enumerate(items):
             for _ in range(COPIES):
                 d = damage(t, p, r)
                 h, j, s = reg.r2(d, E9.M_MIN, th_t)
                 hit[group(i)].append(h and j == i)
+                h3, j3, _ = reg.r3(d)
+                hit3[group(i)].append(h3 and j3 == i)
                 if not h and i < 120 and s >= E9.TH:
                     num_fail[group(i)] += 1                 # enough pieces matched, numbers did not
         fp = {g: 0 for g in ("EN", "KN", "KT")}
+        fp3 = {g: 0 for g in ("EN", "KN", "KT")}
         for g, q in practice:
-            fp[g] += reg.r2(damage(q, p, r), E9.M_MIN, th_t)[0]
+            d = damage(q, p, r)
+            fp[g] += reg.r2(d, E9.M_MIN, th_t)[0]
+            fp3[g] += reg.r3(d)[0]
         out["by_rate"][str(p)] = dict(
             copies_refused={g: round(float(np.mean(v)), 4) for g, v in hit.items()},
+            copies_refused_R3={g: round(float(np.mean(v)), 4) for g, v in hit3.items()},
+            practice_refused_R3={g: int(v) for g, v in fp3.items()},
             missed_because_of_numbers_only={g: round(num_fail[g] / (60 * COPIES), 4) for g in num_fail},
             practice_refused={g: int(v) for g, v in fp.items()}, practice_of=240)
         e = out["by_rate"][str(p)]
         print(f"p={p:4.0%}  refused EN {e['copies_refused']['EN']:.3f}  KN {e['copies_refused']['KN']:.3f}  KT {e['copies_refused']['KT']:.3f}"
               f"   missed on numbers only EN {e['missed_because_of_numbers_only']['EN']:.3f} KN {e['missed_because_of_numbers_only']['KN']:.3f}"
-              f"   practice refused {sum(e['practice_refused'].values())}/720")
+              f"   practice refused {sum(e['practice_refused'].values())}/720"
+              f"   | R3: KT {e['copies_refused_R3']['KT']:.3f}, practice {sum(e['practice_refused_R3'].values())}/720")
     out["example"] = dict(original=items[120][:80], damaged_5_percent=damage(items[120][:80], 0.05, np.random.default_rng(1)))
     json.dump(out, open(out_path, "w"), indent=1, ensure_ascii=False)
 

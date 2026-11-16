@@ -1,0 +1,60 @@
+{
+ "hash_to_curve": [
+  {
+   "msg": "",
+   "ok": true
+  },
+  {
+   "msg": "abc",
+   "ok": true
+  },
+  {
+   "msg": "abcdef0123456789",
+   "ok": true
+  },
+  {
+   "msg": "q128_qqqqqqqqqqqqqqqqqqq",
+   "ok": true
+  },
+  {
+   "msg": "a512_aaaaaaaaaaaaaaaaaaa",
+   "ok": true
+  }
+ ],
+ "oprf": [
+  {
+   "input": "00",
+   "blinded": true,
+   "evaluated": true,
+   "output": true,
+   "evaluate_equals_output": true
+  },
+  {
+   "input": "5a5a5a5a5a5a5a5a",
+   "blinded": true,
+   "evaluated": true,
+   "output": true,
+   "evaluate_equals_output": true
+  }
+ ],
+ "skSm_ok": true,
+ "groupDST_ok": true,
+ "all_ok": true
+}
+{
+ "roots": true,
+ "own_proofs_verify": true,
+ "inclusion": {
+  "files": 86,
+  "expected_rejections": 80,
+  "agree": 86,
+  "disagree": 0
+ },
+ "consistency": {
+  "files": 98,
+  "expected_rejections": 92,
+  "agree": 98,
+  "disagree": 0
+ },
+ "all_ok": true
+}

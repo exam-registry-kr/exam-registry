@@ -28,7 +28,7 @@ Check: n = 4 with E9's values reproduces E9's validation table.
 
     python e14_sensitivity.py          # about a minute
 """
-import json, re, sys, time
+import json, math, re, sys, time
 from collections import Counter
 import numpy as np
 import e9_korean_text_items as E9
@@ -245,42 +245,58 @@ def tradeoff(qs, st):
 
 
 SEED_FRESH = 20261125
+SEED_CONFIRM = 20261126
 POINTS = [(20, 0.6), (40, 0.6), (40, 0.7), (50, 0.6), (60, 0.6), (60, 0.7)]
 
 
 def operating_points():
-    """n = 4, text path only. Candidate (pieces, share) points on three sets: selection,
-    validation and a fresh set (seed SEED_FRESH) that was used only to confirm, after the
-    points had been looked at on the first two. Split questions as in E12, validation set."""
+    """n = 4, text path. Candidate points on three sets: selection, validation and a fresh
+    set (seed SEED_FRESH) that was used only to confirm, after the points had been looked at
+    on the first two, and a confirm set (seed SEED_CONFIRM) looked at only after rule R3 had
+    been fixed on the first three. Fixed floors (pieces, share), and rule R3 whose floor is
+    min(60, ceil(0.6 x the matched item's own pieces)) with share 0.6. Split questions as in
+    E12 (values sent apart, put back, whole conversation and per message), validation set."""
     use_length(4)
     out = {}
-    for name, seed in (("selection", E9.SEED_SELECT), ("validation", E9.SEED_VALIDATE), ("fresh", SEED_FRESH)):
+    for name, seed in (("selection", E9.SEED_SELECT), ("validation", E9.SEED_VALIDATE), ("fresh", SEED_FRESH),
+                       ("confirm", SEED_CONFIRM)):
         items, stems, qs, reg, st = compute(seed)
+        size = [len(reg.g[i] - reg.stem) for i in range(len(items))]
         rows = list(zip(qs, st))
         sp = [s for q, s in rows if q[1] == "short_practice" and s["path"] == "txt"]
-        full = [s for q, s in rows if q[1] in ("practice", "stem_only") and s["path"] == "txt"]
-        rw = [(q, s) for q, s in rows if q[0] == "KT" and q[1] not in NEG and q[1] != "short_copy"]
-        sc = [(q, s) for q, s in rows if q[0] == "KT" and q[1] == "short_copy"]
+        full = [s for q, s in rows if q[1] in ("practice", "stem_only")]
+        same = [s for q, s in rows if q[1] == "same_passage_other_question"]
         r = np.random.default_rng(SEED_ERR)
         dmg = {p: [(i, stats(reg, E10.damage(items[i], p, r))) for i in range(120, 180) for _ in range(3)] for p in (0.05, 0.10)}
         res = []
-        for m, t in POINTS:
-            P = (9, m, t, 0)
+        for m, t in POINTS + [("R3", 0.6)]:
+            def h(s, m=m, t=t):
+                if s["i"] < 0:
+                    return False
+                if s["path"] == "num":
+                    return s["share"] >= E9.TH and s["nums_ok"]
+                floor = min(60, math.ceil(0.6 * size[s["i"]])) if m == "R3" else m
+                return s["v"] >= floor and s["share"] >= t
+            own = lambda g, kinds: round(float(np.mean([h(s) and s["i"] == q[2] for q, s in rows if q[0] in g and kinds(q[1])])), 4)
             d = dict(min_pieces=m, share=t,
-                     short_practice_refused_per_1000=round(1000 * sum(hit(s, *P) for s in sp) / len(sp), 2),
-                     practice_and_stems_refused=int(sum(hit(s, *P) for s in full)),
-                     rewritten_refused=round(float(np.mean([hit(s, *P) and s["i"] == q[2] for q, s in rw])), 4),
-                     short_copy_refused=round(float(np.mean([hit(s, *P) and s["i"] == q[2] for q, s in sc])), 4),
-                     errors_5_refused=round(float(np.mean([hit(s, *P) and s["i"] == i for i, s in dmg[0.05]])), 4),
-                     errors_10_refused=round(float(np.mean([hit(s, *P) and s["i"] == i for i, s in dmg[0.10]])), 4))
+                     short_practice_refused_per_1000=round(1000 * sum(h(s) for s in sp) / len(sp), 2),
+                     practice_and_stems_refused=int(sum(h(s) for s in full)),
+                     rewritten_refused={g: own((g,), lambda k: k not in NEG and k != "short_copy") for g in ("EN", "KN", "KT")},
+                     short_copy_refused={g: own((g,), lambda k: k == "short_copy") for g in ("EN", "KN", "KT")},
+                     errors_5_refused=round(float(np.mean([h(s) and s["i"] == i for i, s in dmg[0.05]])), 4),
+                     errors_10_refused=round(float(np.mean([h(s) and s["i"] == i for i, s in dmg[0.10]])), 4),
+                     same_passage_other_question_refused=[int(sum(h(s) for s in same)), len(same)])
             if name == "validation":
                 for k in (4, 8):
                     for w in (1, 2, 99):
-                        ok = []
-                        for i in range(120, 180):
-                            msgs = E12.numbers_apart(items[i], k)
-                            ok.append(any(hit(stats(reg, " ".join(msgs[max(0, j - w + 1):j + 1])), *P) for j in range(len(msgs))))
-                        d[f"split_{k}_last_{'all' if w == 99 else w}"] = round(float(np.mean(ok)), 4)
+                        for fix in (False, True):
+                            ok = {g: [] for g in ("EN", "KN", "KT")}
+                            for i in range(180):
+                                msgs = E12.numbers_apart(items[i], k)
+                                ok[("EN", "KN", "KT")[i // 60]].append(any(
+                                    h(stats(reg, (E12.resolve if fix else str)(" ".join(msgs[max(0, j - w + 1):j + 1]))))
+                                    for j in range(len(msgs))))
+                            d[f"split_{k}_last_{'all' if w == 99 else w}{'_resolve' if fix else ''}"] = {g: round(float(np.mean(v)), 4) for g, v in ok.items()}
             res.append(d)
         out[name] = dict(short_practice_parts=len(sp), points=res)
     return out

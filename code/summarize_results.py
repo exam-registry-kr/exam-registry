@@ -83,8 +83,8 @@ say(f"   질문 1건당 조각 {t['pieces_per_query_median']:.0f}개(중앙값),
     f" 시험 기관 서버 {t['authority_ms_per_query_median']}ms, 조각당 전송 {t['bytes_per_piece_each_way']}바이트(각 방향)",
     f"   per question: {t['pieces_per_query_median']:.0f} pieces (median), service total {t['client_total_ms_median']} ms,"
     f" authority {t['authority_ms_per_query_median']} ms, {t['bytes_per_piece_each_way']} bytes per piece each way")
-say("   (시연 구현 기준. RFC 9497 구현이 아니며 측정 환경에 따라 달라짐)",
-    "   (demonstration implementation, not RFC 9497; timings depend on the machine)")
+say("   (이 저장소의 RFC 9497 구현 기준. 타원곡선 곱셈 외에는 Python이며 측정 환경에 따라 달라짐)",
+    "   (this repository's RFC 9497 implementation; Python except the elliptic-curve multiplication; timings depend on the machine)")
 
 say("7. 등록 문항 수를 늘렸을 때 (E8-001, 모든 문항이 같은 12개 유형인 가장 불리한 조건)",
     "7. Growing the registry (E8-001, worst case: every item from the same 12 templates)")
@@ -157,6 +157,12 @@ o = e12["ordinary"]
 s1, s2 = o["same_template_practice"], o["mixed_study"]
 say(f"   학습 대화 오인: 같은 유형 연속 {s1['all']}/{s1['of']}, 섞은 대화 {s2['all']}/{s2['of']}",
     f"   study conversations refused: same-type practice {s1['all']}/{s1['of']}, mixed {s2['all']}/{s2['of']}")
+r3 = e12["attack_R3"]["numbers_apart_8_resolve"]["all"]
+o3 = e12["ordinary_R3"]
+say(f"   최종 규칙 R3: 숫자 따로, 본문 8개, 값 되돌리기, 대화 전체 " + "/".join(f"{r3[g]:.0%}" for g in ("EN", "KN", "KT"))
+    + f", 학습 대화 오인 {o3['same_template_practice']['all'] + o3['mixed_study']['all']}/1200",
+    f"   final rule R3: numbers apart, text in 8 parts, values put back, whole conversation " + "/".join(f"{r3[g]:.0%}" for g in ("EN", "KN", "KT"))
+    + f", study conversations refused {o3['same_template_practice']['all'] + o3['mixed_study']['all']}/1200")
 
 say("12. 시험 기관 서버의 부하 (E13-001, 이 컴퓨터의 CPU 1개)", "12. Authority load (E13-001, one CPU core of the machine that ran it)")
 e13 = load("E13-001_results.json")["load"]
@@ -165,3 +171,29 @@ say("   조각당 처리 시간: " + ", ".join(f"묶음 {k}개 {v['us_per_piece'
 q, z = e13["questions_per_second_per_core"], e13["sizing"]
 say(f"   CPU 1개당 초당 질문: 한국어 {q['korean']}건, 영어 {q['english']}건 / 가정 초당 {z['assumed_questions_per_second']:,}건이면 CPU {z['cores_needed_korean']}개",
     f"   questions per second per core: Korean {q['korean']}, English {q['english']} / {z['cores_needed_korean']} cores for an assumed {z['assumed_questions_per_second']:,} Korean questions per second")
+qb = e13["questions_per_second_per_core_bare"]
+say(f"   타원곡선 곱셈만의 비용: 한국어 {qb['korean']}건, 영어 {qb['english']}건 / CPU {z['cores_needed_korean_bare']}개",
+    f"   at the cost of the multiplication alone: Korean {qb['korean']}, English {qb['english']} / {z['cores_needed_korean_bare']} cores")
+
+say("13. 기준값의 근거 (E14-001, 4글자, 서술형, 묶음 4개)", "13. Thresholds (E14-001, 4 characters, text items, four sets)")
+op = load("E14-001_results.json")["operating_points_text_n4"]
+for lab, key in (("R2 (20, 0.6)", 20), ("R3", "R3")):
+    pts = [p_ for v in op.values() for p_ in v["points"] if p_["min_pieces"] == key and p_["share"] == 0.6]
+    fp = [p_["short_practice_refused_per_1000"] for p_ in pts]
+    say(f"   {lab}: 연습문제 일부 오인 1,000건당 {min(fp)}~{max(fp)}건, 연습문제 전체와 발문 오인 {sum(p_['practice_and_stems_refused'] for p_ in pts)}건",
+        f"   {lab}: parts of practice problems refused {min(fp)} to {max(fp)} per 1,000, whole practice problems and stems refused {sum(p_['practice_and_stems_refused'] for p_ in pts)}")
+
+say("14. 국제 표준 적합성 (STD-001)", "14. Conformance to standards (STD-001)")
+txt = open(os.path.join(R, "STD-001_standards_check.txt")).read()
+dec, i, objs = json.JSONDecoder(), 0, []
+while i < len(txt):
+    if txt[i] == "{":
+        o_, i = dec.raw_decode(txt, i)
+        objs.append(o_)
+    else:
+        i += 1
+v, m = objs[0], objs[1]
+say(f"   RFC 9497/9380 공식 시험 값: hash_to_curve {sum(x['ok'] for x in v['hash_to_curve'])}/{len(v['hash_to_curve'])}, OPRF 전부 일치: {yes(v['all_ok'])}",
+    f"   RFC 9497/9380 official vectors: hash_to_curve {sum(x['ok'] for x in v['hash_to_curve'])}/{len(v['hash_to_curve'])}, OPRF all match: {yes(v['all_ok'])}")
+say(f"   RFC 9162 참조 자료: 포함 증명 {m['inclusion']['agree']}/{m['inclusion']['files']}, 일관성 증명 {m['consistency']['agree']}/{m['consistency']['files']} 같은 판정",
+    f"   RFC 9162 reference data: inclusion {m['inclusion']['agree']}/{m['inclusion']['files']}, consistency {m['consistency']['agree']}/{m['consistency']['files']} decided alike")

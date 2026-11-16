@@ -47,15 +47,15 @@
   }
  },
  "timing": {
-  "note": "2HashDH OPRF on P-256 via the cryptography package, one CPU core; not RFC 9497",
-  "publish_seconds": 1.458,
+  "note": "OPRF(P-256, SHA-256) of RFC 9497, base mode, one CPU core; scalar multiplication in OpenSSL, the rest in Python",
+  "publish_seconds": 5.918,
   "published_values": 4340,
   "pieces_per_query_median": 70.0,
-  "client_total_ms_median": 53.68,
-  "client_total_ms_p95": 76.74,
-  "authority_ms_per_query_median": 12.7,
-  "authority_us_per_piece": 184.21,
-  "bytes_per_piece_each_way": 32
+  "client_total_ms_median": 174.21,
+  "client_total_ms_p95": 254.43,
+  "authority_ms_per_query_median": 36.76,
+  "authority_us_per_piece": 530.03,
+  "bytes_per_piece_each_way": 33
  },
  "rows": [
   {
