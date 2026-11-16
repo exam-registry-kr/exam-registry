@@ -136,6 +136,10 @@ All experiments are computer simulations that model printing and photographing n
 | Authority load, test vectors for integration | One CPU core serves about 15 Korean questions per second with this repository's RFC 9497 implementation, about 123 counting the elliptic-curve multiplication alone; batching does not lower the cost per piece. RFC 9497 piece values and 7 decisions under a public test key are published | `python e13_load_and_vectors.py` | about 20 s |
 | Why these piece lengths and thresholds | 2-character pieces refuse whole practice problems and are ruled out; 4 is the longest length that still refuses every text item at 5% reading errors. Share 0.5 for word problems is the highest value that loses no detection. R2 refuses 76 to 102 of every 1,000 study questions that quote part of a practice problem; replaced by R3, which requires 60% of the matched item's pieces (at most 60): 0.8 to 8.6 per 1,000 over four sets | `python e14_sensitivity.py` | about 1 min |
 | Conformance to international standards | Encrypted lookup: RFC 9497 (with RFC 9380) official vectors, hash_to_curve 5/5, OPRF 2/2, key derivation matches. Log moved to the RFC 9162 Merkle tree: all 86 inclusion and 98 consistency reference cases (172 must-reject) decided as the reference implementation does | see 3.13 | seconds |
+| Comparison with simpler methods, cheap ways around (E16) | An exact hash refuses 16.7% of the earlier rewritten questions, a keyword list 33.1%, vector similarity 40.4%, R3 90%. **R3 refuses 0% when one number is put in front of the item and 0 to 24% when unrelated sentences are added in front or in between.** Candidate rule R5 refuses all five of these at 100% but wrongly refuses 1 to 3 of 100 conversations of 16 practice problems. Fully reworded or translated questions get past every method | `python e16_baselines.py` | about 4 minutes |
+| What the lookup server can learn from request sizes (E15) | From the element count alone it names the item of a question with probability 10.7% (chance 0.6%). Padding to multiples of 32: 1.6% (load x1.218); batching 4 questions: 0.7% (no extra load) | `python e15_lookup_metadata.py` | seconds |
+| When the lookup server is down (E17) | No new piece can be looked up; a service that keeps answering refuses 0% of exam questions. Judging with the piece values kept from earlier lookups: 41.6% after 100 questions, 82.7% after 1,000, 89.8% after 5,000 (normal operation 89.8%) | `python e17_outage.py` | about 1 minute |
+| Can someone make another person's question be refused (E18) | With a whole item planted in the conversation R3 does not refuse the study question that follows (0/540). Candidate R5 refuses 180/180 with the whole item, 44/180 with 60% of it, and keeps refusing for the next 8 messages. Planting only the stems: 0 for every rule | `python e18_refusal_abuse.py` | about 3 minutes |
 
 ![Marker decoding by condition](figures/fig_e1_sweeps_v2.png)
 
@@ -393,6 +397,111 @@ What changed with the Merkle tree log: with the earlier hash chain, checking one
 
 After moving the encrypted lookup to RFC 9497, plain matching and encrypted lookup still gave the same decisions on all 600 queries of E7, 386 of E9 and 2,100 of E11, because the matching rule only uses set operations on piece values and does not depend on the cryptography.
 
+### 3.14 Comparison with simpler methods, and cheap ways around (E16)
+
+```
+python e16_baselines.py
+```
+
+Five methods were compared on the same items and the same questions: an exact hash (SHA-256 of the normalised text), a keyword list (words found in at most 5% of the registered items), vector similarity (TF-IDF cosine over 4-character pieces, with the number test), reduced vectors (those vectors reduced to 64 dimensions), and the registry's rule R3. The thresholds of the other methods were chosen on the selection set only (keywords 0.95, vector + numbers 0.85, reduced vector 0.99). The figures below are from the confirm set (180 items), which was never used to choose a value. The reduced vectors stand in for a sentence-embedding model. No neural embedding model could be installed where this ran, so a neural embedding was not measured.
+
+This experiment exposed a gap in R3. If the item is pasted word for word with "Question 23:" in front, R3 refuses none of them. A question containing a number other than 1 to 5 is judged on the numbers path, and that path requires every number of the question to be in the item. Adding unrelated sentences to lower the share also works.
+
+Questions that must be refused (confirm set, one per item)
+
+| Question | Exact hash | Keywords | Vector + numbers | Reduced vector | R3 | R5 (candidate) |
+|---|---|---|---|---|---|---|
+| E9's rewrites and E14's short copies | 16.7% | 33.1% | 40.4% | 43.2% | 90% | 90% |
+| "Question 23:" put in front of the item | 0% | 100% | 0% | 100% | 0% | 100% |
+| unrelated sentences in front, as long as the item | 0% | 100% | 99.4% | 81.1% | 11.1% | 100% |
+| unrelated sentences in front, 3 times the item | 0% | 100% | 71.1% | 64.4% | 0% | 100% |
+| an unrelated sentence after every sentence | 0% | 100% | 99.4% | 78.9% | 24.4% | 100% |
+| the item among 16 practice problems | 0% | 60.6% | 0% | 0% | 0% | 100% |
+| "rewrite this in other words" + the item | 0% | 100% | 100% | 81.7% | 97.2% | 100% |
+| a filler word after every 2 words | 0% | 100% | 69.4% | 71.7% | 2.8% | 5% |
+| every sentence reworded | 0% | 0% | 0% | 0.6% | 2.8% | 2.8% |
+| translated (word problems) | 0% | 0% | 0% | 0% | 0% | 0% |
+
+Questions that must not be refused (counts)
+
+| Question | Exact hash | Keywords | Vector + numbers | Reduced vector | R3 | R5 (candidate) | Of |
+|---|---|---|---|---|---|---|---|
+| Whole practice problems | 0 | 2 | 0 | 349 | 0 | 0 | 720 |
+| Parts of practice problems | 0 | 0 | 0 | 692 | 17 | 17 | 3119 |
+| Reworded practice problems | 0 | 0 | 0 | 20 | 0 | 0 | 720 |
+| Conversations of 4 practice problems | 0 | 7 | 0 | 0 | 0 | 0 | 200 |
+| Conversations of 16 practice problems | 0 | 63 | 0 | 0 | 0 | 1 | 100 |
+
+How to read this:
+
+- The exact hash only catches differences in spacing and punctuation. The keyword list resists padding but catches a third of the earlier rewrites and wrongly refuses more than half of the 16-problem conversations. The reduced vectors cannot tell a practice problem of the same type from a registered item (349 of 720 whole practice problems refused).
+- What a service holds before the exam also differs. With a list of hashes anyone can test a guessed text without asking the authority. The keyword list shows 45.8% of an item's words in clear. A vector method needs every piece of every item in clear to compute query vectors. The registry distributes ciphertext only until the exam starts (E11).
+- Candidate rule R5 refuses everything R3 refuses and adds three things. (a) A question with numbers whose best-matching item has no numbers is judged as text. (b) The number test passes if the question's numbers are all in the item or the item's numbers are all in the question. (c) Sentences that do not look like the item are dropped; if a run of the remaining sentences, at most 1.5 times as long as the item, contains at least 70% of the item's pieces, the question is refused. Both values were chosen on the selection set.
+- The price of R5 is wrong refusals of conversations of 16 practice problems: none on the selection set, but 2, 3 and 1 of 100 on the other three sets. These practice problems are built from the same sentence frames as the registered items, which is harder than real use. R5 has not been adopted; the specification and the test vectors still use R3.
+- In (c) the first version tried only the three best-matching items. E18 showed that an item hidden among practice problems was then missed, so every item that can meet the condition is now tried, and the values were chosen again on the selection set. The other three sets had already been looked at before this change.
+- A filler word after every two words is caught by the keyword and vector methods but gets past R3 and R5 almost always (only 53.3% of the item's pieces remain in the question). Full rewording or translation gets past every method, because only 16.6% and 4.7% of the item's pieces remain in the question. To have an AI do the rewording the user must send the original item, and that request is refused 97.2% of the time by R3 and 100% by R5. The time it takes to reword by hand was not measured.
+
+### 3.15 What the lookup server can learn from request sizes (E15)
+
+```
+python e15_lookup_metadata.py
+```
+
+The encrypted lookup hides the pieces of a question from the lookup server, but the server sees how many elements arrive per question, when, and from which service. Assuming the server knows every registered item and the rewriting methods and has already seen half of the questions with their answers, we measured what the element count alone gives away (confirm set, 2,040 exam questions, 4,559 ordinary questions).
+
+| Arm | Names the item (chance 0.6%) | Tells exam questions from others (0.5 = cannot) | Server load |
+|---|---|---|---|
+| Sent as is | 10.7% | 0.5396 | x1 |
+| Padded to multiples of 32 | 1.6% | 0.5415 | x1.218 |
+| Padded to multiples of 64 | 1.4% | 0.5367 | x1.468 |
+| Padded to multiples of 128 | 1.3% | 0.5225 | x2.031 |
+| Always 512 | 0.8% | 0.501 | x6.722 |
+| 4 questions in one request | 0.7% | 0.5171 | x1 |
+| 16 questions in one request | 0.5% | 0.5098 | x1 |
+
+Sent as is, the server names the item for about one exam question in ten. Sending four questions of different users as one request brings this down to chance at no extra load, at the price of waiting until four questions have arrived. The number of requests per service and their times are hidden by none of these; hiding them needs cover requests at a constant rate, whose cost was not measured. Practice problems here are as long as registered items because they share their frames, so the second column may differ on real conversations.
+
+### 3.16 When the lookup server is down (E17)
+
+```
+python e17_outage.py
+```
+
+A service holds the piece values of the items in advance, but only the lookup server can compute the piece values of a question. When the server stops, new pieces cannot be judged. Marks printed on the paper do not use the lookup and are not affected. In a stream in which 30% of the questions are about a registered item, the 2,000 questions after the stop were judged in four ways (confirm set, R3).
+
+| Questions before the stop | Pieces kept | Keep answering | Refuse all | Judge with kept piece values | Release the lookup key | Normal operation |
+|---|---|---|---|---|---|---|
+| 0 | 0 | 0% | 100% | 0% | 89.2% | 89.2% |
+| 10 | 682 | 0% | 100% | 0% | 89.2% | 89.2% |
+| 100 | 3,904 | 0% | 100% | 41.6% | 89% | 89% |
+| 1,000 | 13,990 | 0% | 100% | 82.7% | 90.6% | 90.6% |
+| 5,000 | 21,212 | 0% | 100% | 89.8% | 89.8% | 89.8% |
+
+Values are the share of exam questions refused. "Refuse all" also refuses every ordinary question. Judging with kept values counts an unknown piece as not matching, so it does not refuse more ordinary questions (1 of 10,000 questions were refused that normal operation would not refuse). After the first 1,000 questions of an exam it keeps 91.3% of normal operation. The same store lowers the everyday load (after 5,000 questions 94.5% of the pieces were already known). If the server stops right at the start there is nothing kept and no effect.
+
+"Release the lookup key" means the authority publishes that exam's lookup key through the log and the service computes the values itself. Decisions then equal normal operation, but until that exam ends an insider can test guesses without asking anyone (the protection of E11 is given up). It needs a separate lookup key per exam. Which default to use is a matter for the operating design.
+
+### 3.17 Can someone make another person's question be refused (E18)
+
+```
+python e18_refusal_abuse.py
+```
+
+During an exam the whole conversation is judged, so exam text in a shared document or in the instructions of an app can make an ordinary question in the same conversation be refused. Only someone who holds the item during the exam can do this, and the refusal ends with the exam. Part of a registered item was planted in front of a victim's conversation (4 practice problems and a follow-up question), for all 180 items.
+
+| Planted | R2 | R3 | R5 (candidate) |
+|---|---|---|---|
+| nothing | 0/180 | 0/180 | 0/180 |
+| 20% | 0/180 | 0/180 | 0/180 |
+| 40% | 0/180 | 0/180 | 1/180 |
+| 60% | 0/180 | 0/180 | 44/180 |
+| 80% | 0/180 | 0/180 | 115/180 |
+| 100% | 0/180 | 0/180 | 180/180 |
+
+With the whole item planted as the first message and ordinary messages after it, R3 still refuses 5/180 conversations after one message and 0/180 after two; R5 still refuses 180/180 after eight. Planting only the 10 stems: 0/60 for all three rules.
+
+These are two sides of one property. R3 looks at the share of the question that matches, so it stops refusing once other text is mixed in. That makes it robust against this abuse and open to padding (3.14). R5 looks at how much of the item is present, so it closes padding and keeps refusing a conversation that contains 60% or more of an item until the exam ends. With nothing planted, 2 of 60 conversations of 16 text practice problems were refused (the same effect as in 3.14).
+
 ## 4. Reading the results
 
 - All results are simulations. Measurements with real cameras and real printed pages are tasks for the pilot stage.
@@ -407,6 +516,9 @@ After moving the encrypted lookup to RFC 9497, plain matching and encrypted look
 - The value restoration of E12 handles only the "A=168" form. Numbers written in Korean words, or values described in words such as "the first value is 168", remain a limit, like synonyms. Judging the whole conversation requires the service to hold the conversation briefly during the exam.
 - In E14 the practice passages were built from the same sentence frames as the registered items, so the refusal rate for parts of practice problems may be higher than in real use. It should be measured again on real textbooks and real exam passages. The final rule (R3) is recorded in the result files of E9, E10 and E12 and in the E13 test vectors; the items of the demonstration code all contain numbers, so R3 does not affect them.
 - The throughput of E13 is that of this repository's Python implementation, and of the elliptic-curve multiplication (OpenSSL) inside it timed alone. The throughput of an optimized RFC 9497 library was not measured. During exam windows every text question sent to a cooperating service is subject to lookup, so actual question volumes in weeks crowded with school exams should be checked together with the services. Whether to answer or refuse when the authority's server is down must also be decided in the operational design.
+- E16 found a gap in the final rule R3: with one number in front of an item, or with unrelated sentences added, even a word-for-word copy is not refused (3.14). Candidate rule R5, which closes this, was measured only and has not been adopted. The specification, the test vectors and the demonstrations still use R3. R5 wrongly refuses 1 to 3 of 100 long conversations of practice problems and keeps refusing a conversation that contains an item until the exam ends (3.17).
+- The "fully reworded" questions of E16 come from hand-written paraphrase templates; rewording by an AI was not measured. The reduced vectors are not a neural sentence embedding. How many reworded questions a neural embedding catches, and how many practice problems it wrongly refuses, was not measured.
+- E15 assumes an observer who sees the element count only. An observer who also uses the gaps between requests, or several requests of one user, was not measured. The stream of E17 (30% exam questions, every item equally often) is an assumption.
 - The timing of the encrypted lookup was measured on this repository's implementation with one CPU. Throughput at operating scale has to be measured after the shared lookup server is built. Conformance (3.13) was checked with official test vectors and reference test data; no third-party audit or interoperability test has been done.
 - The commercial AI test covers one model (GPT-Astra) and 36 photos. The exact text of the first-round prompt was not kept (`results/E5-003_prompts.md`). It should be checked again when the model changes.
 - With very different library versions, image processing results may differ in a few trials. The tested versions are listed in `requirements.txt`.
@@ -431,13 +543,17 @@ After moving the encrypted lookup to RFC 9497, plain matching and encrypted look
 | `code/e12_split_questions.py` | Split questions and judging whole conversations |
 | `code/e13_load_and_vectors.py` | Authority load, making and checking test vectors |
 | `code/e14_sensitivity.py` | Why these piece lengths and thresholds, and what each value costs |
+| `code/e15_lookup_metadata.py` | What the lookup server can learn from request sizes, and the cost of hiding it |
+| `code/e16_baselines.py` | Comparison with exact hash, keywords and vectors; cheap ways around; candidate rule R5 |
+| `code/e17_outage.py` | What still works when the lookup server is down |
+| `code/e18_refusal_abuse.py` | Planting exam text to make another person's question be refused |
 | `code/rfc9497.py` | RFC 9497 OPRF(P-256, SHA-256) and RFC 9380 hash_to_curve, with the official vector check |
 | `code/transparency_log.py` | RFC 9162 Merkle tree log (inclusion and consistency proofs), with the reference data check |
 | `code/check_standards.sh` | Fetches the official vectors and reference data at fixed commits and checks both modules |
 | `code/e5_legibility.py`, `e5_enh.py`, `e5_collect.py`, `e5_fp.py`, `e5_fp2.py` | Text reading vs marker decoding, final decoder, false matches on ordinary documents |
 | `code/e5_stage2.py`, `e5_stage2_score.py` | Photos for the commercial AI test and scoring |
 | `code/e6_make_sample.py`, `e6_check_decode.py` | Real exam page |
-| `results/` | Raw results (E1 to E14 follow the order above) |
+| `results/` | Raw results (E1 to E18 follow the order above) |
 | `figures/` | Result figures, sample test pages |
 | `docs/` | Policy proposal and specification (Korean), operation walkthrough (Korean and English) |
 

@@ -197,3 +197,43 @@ say(f"   RFC 9497/9380 공식 시험 값: hash_to_curve {sum(x['ok'] for x in v[
     f"   RFC 9497/9380 official vectors: hash_to_curve {sum(x['ok'] for x in v['hash_to_curve'])}/{len(v['hash_to_curve'])}, OPRF all match: {yes(v['all_ok'])}")
 say(f"   RFC 9162 참조 자료: 포함 증명 {m['inclusion']['agree']}/{m['inclusion']['files']}, 일관성 증명 {m['consistency']['agree']}/{m['consistency']['files']} 같은 판정",
     f"   RFC 9162 reference data: inclusion {m['inclusion']['agree']}/{m['inclusion']['files']}, consistency {m['consistency']['agree']}/{m['consistency']['files']} decided alike")
+
+say("15. 다른 방식과의 비교, 손쉬운 회피 (E16-001, 확인용 묶음)", "15. Comparison with simpler methods, cheap ways around (E16-001, confirm set)")
+e16 = load("E16-001_results.json")
+c16 = e16["sets"]["confirm"]
+names = [("H", "정확 해시", "exact hash"), ("K", "핵심어", "keywords"), ("V+n", "벡터+숫자", "vector + numbers"), ("L", "축소 벡터", "reduced vector"),
+         ("R3", "R3", "R3"), ("R5", "R5(후보)", "R5 (candidate)")]
+o = c16["summary"]["rewrites_of_E9_and_short_copies"]
+say("   기존 바꿔 쓰기와 일부 발췌: " + ", ".join(f"{ko} {o[m]:.1%}" for m, ko, en in names),
+    "   earlier rewrites and short copies: " + ", ".join(f"{en} {o[m]:.1%}" for m, ko, en in names))
+for key, ko, en in (("stray_number", "숫자 하나를 앞에 붙임", "one number in front"), ("padded_3x", "무관한 문장 3배 덧붙임", "unrelated sentences, 3x"),
+                    ("padded_practice_16", "연습문제 16개 사이", "among 16 practice problems"), ("reworded", "문장을 전부 바꿈", "fully reworded")):
+    r = c16["refused"][key]["all"]
+    say(f"   {ko}: " + ", ".join(f"{k2} {r[m]:.1%}" for m, k2, _ in names), f"   {en}: " + ", ".join(f"{e2} {r[m]:.1%}" for m, _, e2 in names))
+cv = [e16["sets"][n]["not_to_refuse"]["conv_16"]["all"]["R5"] for n in ("selection", "validation", "fresh", "confirm")]
+r5 = e16["thresholds_chosen_on_selection"]["R5"]
+say(f"   R5 값(선택용 묶음): 문항 조각의 {r5['C']:.0%}, 구간 {r5['span']}배 / 연습문제 16개 대화 오인(묶음 4개, 100건씩): {cv}",
+    f"   R5 values (selection set): {r5['C']:.0%} of the item's pieces, run {r5['span']}x / 16-problem conversations refused (four sets, of 100): {cv}")
+
+say("16. 조회 서버가 요청 크기에서 알아낼 수 있는 것 (E15-001)", "16. What the lookup server learns from request sizes (E15-001)")
+e15 = load("E15-001_results.json")
+say(f"   문항 맞히기(무작위 {e15['chance_item']:.2%}): " + ", ".join(f"{k} {v['item_guess_accuracy']:.1%}" for k, v in e15["arms"].items()),
+    f"   naming the item (chance {e15['chance_item']:.2%}): " + ", ".join(f"{k} {v['item_guess_accuracy']:.1%}" for k, v in e15["arms"].items()))
+say("   서버 처리량 배수: " + ", ".join(f"{k} {v['elements_per_real_element']}" for k, v in e15["arms"].items()),
+    "   server load factor: " + ", ".join(f"{k} {v['elements_per_real_element']}" for k, v in e15["arms"].items()))
+
+say("17. 조회 서버가 멈췄을 때 (E17-001, 문항 질문 거절률)", "17. Lookup server down (E17-001, share of exam questions refused)")
+e17 = load("E17-001_results.json")["by_questions_before_outage"]
+for n, d in e17.items():
+    x = d["exam_questions_refused"]
+    say(f"   멈추기 전 {int(n):,}건: 보관 값 판정 {x['cache']:.1%}, 정상 {x['normal_operation']:.1%}, 답 계속 0%, 모두 거절 100%",
+        f"   {int(n):,} questions before the stop: kept values {x['cache']:.1%}, normal {x['normal_operation']:.1%}, keep answering 0%, refuse all 100%")
+
+say("18. 남의 질문을 거절되게 만들 수 있는가 (E18-001, 연습문제 4개 대화, 180건)", "18. Making another person's question be refused (E18-001, 4-problem conversations, of 180)")
+e18 = load("E18-001_results.json")
+for f in ("0.0", "0.6", "1.0"):
+    d = e18["planted_part"][f"victim_4_planted_{f}"]
+    t = {k: sum(d[g][k] for g in d) for k in ("R2", "R3", "R5")}
+    say(f"   문항의 {float(f):.0%}를 심음: R2 {t['R2']}, R3 {t['R3']}, R5 {t['R5']}", f"   {float(f):.0%} of an item planted: R2 {t['R2']}, R3 {t['R3']}, R5 {t['R5']}")
+la = e18["lasting"]["still_refused_after_n_ordinary_messages"]
+say(f"   전문을 심은 뒤 일반 메시지 8개: R3 {la['R3'][8]}, R5 {la['R5'][8]} (180건 중 거절 상태)", f"   whole item, then 8 ordinary messages: R3 {la['R3'][8]}, R5 {la['R5'][8]} still refused (of 180)")

@@ -1,0 +1,123 @@
+{
+ "experiment": "E17-001",
+ "seed": 20261128,
+ "exam_share": 0.3,
+ "questions_during_outage": 2000,
+ "rule": "R3",
+ "by_questions_before_outage": {
+  "0": {
+   "pieces_in_cache": 0,
+   "share_of_evaluations_saved_before_outage": null,
+   "share_of_a_question_pieces_in_cache": 0.0,
+   "exam_questions": 574,
+   "ordinary_questions": 1426,
+   "exam_questions_refused": {
+    "normal_operation": 0.892,
+    "answer_all": 0.0,
+    "refuse_all": 1.0,
+    "cache": 0.0,
+    "key_release": 0.892
+   },
+   "ordinary_questions_refused": {
+    "normal_operation": 4,
+    "answer_all": 0,
+    "refuse_all": 1426,
+    "cache": 0,
+    "key_release": 4
+   },
+   "refused_by_cache_but_not_in_normal_operation": 0
+  },
+  "10": {
+   "pieces_in_cache": 682,
+   "share_of_evaluations_saved_before_outage": 0.1301,
+   "share_of_a_question_pieces_in_cache": 0.1882,
+   "exam_questions": 576,
+   "ordinary_questions": 1424,
+   "exam_questions_refused": {
+    "normal_operation": 0.8924,
+    "answer_all": 0.0,
+    "refuse_all": 1.0,
+    "cache": 0.0,
+    "key_release": 0.8924
+   },
+   "ordinary_questions_refused": {
+    "normal_operation": 4,
+    "answer_all": 0,
+    "refuse_all": 1424,
+    "cache": 0,
+    "key_release": 4
+   },
+   "refused_by_cache_but_not_in_normal_operation": 0
+  },
+  "100": {
+   "pieces_in_cache": 3904,
+   "share_of_evaluations_saved_before_outage": 0.4544,
+   "share_of_a_question_pieces_in_cache": 0.5945,
+   "exam_questions": 575,
+   "ordinary_questions": 1425,
+   "exam_questions_refused": {
+    "normal_operation": 0.8904,
+    "answer_all": 0.0,
+    "refuse_all": 1.0,
+    "cache": 0.4157,
+    "key_release": 0.8904
+   },
+   "ordinary_questions_refused": {
+    "normal_operation": 5,
+    "answer_all": 0,
+    "refuse_all": 1425,
+    "cache": 2,
+    "key_release": 5
+   },
+   "refused_by_cache_but_not_in_normal_operation": 1
+  },
+  "1000": {
+   "pieces_in_cache": 13990,
+   "share_of_evaluations_saved_before_outage": 0.8262,
+   "share_of_a_question_pieces_in_cache": 0.9128,
+   "exam_questions": 584,
+   "ordinary_questions": 1416,
+   "exam_questions_refused": {
+    "normal_operation": 0.9058,
+    "answer_all": 0.0,
+    "refuse_all": 1.0,
+    "cache": 0.8271,
+    "key_release": 0.9058
+   },
+   "ordinary_questions_refused": {
+    "normal_operation": 4,
+    "answer_all": 0,
+    "refuse_all": 1416,
+    "cache": 4,
+    "key_release": 4
+   },
+   "refused_by_cache_but_not_in_normal_operation": 0
+  },
+  "5000": {
+   "pieces_in_cache": 21212,
+   "share_of_evaluations_saved_before_outage": 0.9455,
+   "share_of_a_question_pieces_in_cache": 0.9906,
+   "exam_questions": 605,
+   "ordinary_questions": 1395,
+   "exam_questions_refused": {
+    "normal_operation": 0.8975,
+    "answer_all": 0.0,
+    "refuse_all": 1.0,
+    "cache": 0.8975,
+    "key_release": 0.8975
+   },
+   "ordinary_questions_refused": {
+    "normal_operation": 6,
+    "answer_all": 0,
+    "refuse_all": 1395,
+    "cache": 6,
+    "key_release": 6
+   },
+   "refused_by_cache_but_not_in_normal_operation": 0
+  }
+ },
+ "key_release_check": {
+  "pieces": 40,
+  "identical": 40
+ }
+}

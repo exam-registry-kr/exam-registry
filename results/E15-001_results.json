@@ -1,0 +1,59 @@
+{
+ "experiment": "E15-001",
+ "seed": 20261127,
+ "registered_items": 180,
+ "must_refuse_questions": 2040,
+ "ordinary_questions": 4559,
+ "elements_per_question": {
+  "median": 49.0,
+  "max": 323
+ },
+ "chance_item": 0.0056,
+ "arms": {
+  "none": {
+   "item_guess_accuracy": 0.1069,
+   "exam_or_not_auc": 0.5396,
+   "distinct_values_seen": 285,
+   "elements_per_real_element": 1.0
+  },
+  "pad_32": {
+   "item_guess_accuracy": 0.0157,
+   "exam_or_not_auc": 0.5415,
+   "distinct_values_seen": 12,
+   "elements_per_real_element": 1.218
+  },
+  "pad_64": {
+   "item_guess_accuracy": 0.0137,
+   "exam_or_not_auc": 0.5367,
+   "distinct_values_seen": 7,
+   "elements_per_real_element": 1.468
+  },
+  "pad_128": {
+   "item_guess_accuracy": 0.0127,
+   "exam_or_not_auc": 0.5225,
+   "distinct_values_seen": 4,
+   "elements_per_real_element": 2.031
+  },
+  "fixed_512": {
+   "item_guess_accuracy": 0.0078,
+   "exam_or_not_auc": 0.501,
+   "distinct_values_seen": 2,
+   "elements_per_real_element": 6.722
+  },
+  "batch_4": {
+   "item_guess_accuracy": 0.0069,
+   "exam_or_not_auc": 0.5171,
+   "elements_per_real_element": 1.0,
+   "questions_waiting_for_one_request": 4,
+   "note": "the guess is about one chosen question inside the batch; the others are drawn at random from all questions"
+  },
+  "batch_16": {
+   "item_guess_accuracy": 0.0049,
+   "exam_or_not_auc": 0.5098,
+   "elements_per_real_element": 1.0,
+   "questions_waiting_for_one_request": 16,
+   "note": "the guess is about one chosen question inside the batch; the others are drawn at random from all questions"
+  }
+ },
+ "not_hidden": "requests per service and their times; a service that wants to hide its volume has to send cover requests at a constant rate"
+}
