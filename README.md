@@ -1,5 +1,7 @@
 # 「시험 보호 국가 등록제」 제안 (Exam Registry)
 
+한국어 | [English](README.en.md)
+
 진행 중인 시험 문제에 AI가 답하지 않도록 하는 국가 단위 등록 체계의 설계 문서, 시뮬레이션 코드, 실험 결과입니다. 수능에서 시작하여 자격시험, 대학 시험, 학교 내신으로 단계적으로 확대하고, 국제 표준으로 제안하는 것을 목표로 합니다. 누구나 아래 절차에 따라 결과를 직접 확인하고 재현할 수 있습니다.
 
 이 제안은 2026년 11월 15일 국민신문고 일반제안으로 교육부에 제출하였습니다. 정책 제안서는 제출 당시의 판입니다. 이후 추가한 실험(상용 AI 판독 시험, 암호화 조회 검증, 등록 규모 확대 시험, 한국어·숫자 없는 문항 시험, 글자 오류 시험, 내부자 추측 시험, 나눠 묻기 시험, 서버 부하와 연동 시험 값, 운영 과정 시연)은 이 저장소에서 확인할 수 있습니다.
@@ -8,7 +10,7 @@
 
 - 정책 제안서: [`docs/정책제안서.pdf`](docs/정책제안서.pdf)
 - 기술 명세: [`docs/설계명세.pdf`](docs/설계명세.pdf)
-- 운영 과정 시연 결과: [`docs/운영과정_시연.md`](docs/운영과정_시연.md)
+- 운영 과정 시연 결과: [`docs/운영과정_시연.md`](docs/운영과정_시연.md) (영문 번역: [`docs/operation_walkthrough_en.md`](docs/operation_walkthrough_en.md))
 
 ## 1. 개요
 
@@ -81,7 +83,7 @@ python demo.py
 python demo.py --ink 0.5 --view 0.25
 ```
 
-`--ink`는 노란 잉크가 청색광을 흡수하는 비율(인쇄 농도), `--view`는 사진에 담기는 시험지 높이의 비율입니다.
+`--ink`는 노란 잉크가 청색광을 흡수하는 비율(인쇄 농도), `--view`는 사진에 담기는 시험지 높이의 비율입니다. `--en`을 붙이면 영어로 출력합니다.
 
 ### 2.3 운영 과정 시연
 
@@ -106,7 +108,7 @@ python operation_demo.py
 python summarize_results.py
 ```
 
-정책 제안서와 기술 명세에 인용된 모든 수치를 `results/` 폴더의 원자료에서 직접 계산하여 출력합니다.
+정책 제안서와 기술 명세에 인용된 모든 수치를 `results/` 폴더의 원자료에서 직접 계산하여 출력합니다. `--en`을 붙이면 영어로 출력합니다.
 
 ## 3. 실험 결과와 재현 명령
 
@@ -361,7 +363,7 @@ AI 서비스가 자기 구현을 맞춰 볼 수 있도록, 공개한 시험용 �
 | `code/e6_make_sample.py`, `e6_check_decode.py` | 실제 시험지 적용 |
 | `results/` | 실험 원자료 (파일명 앞의 E1~E13은 위 실험 순서) |
 | `figures/` | 결과 그래프, 실험용 시험지 견본 |
-| `docs/` | 정책 제안서, 기술 명세 |
+| `docs/` | 정책 제안서, 기술 명세, 운영 과정 시연(한국어, 영문 번역) |
 
 ## 6. 미포함 자료
 
@@ -371,10 +373,8 @@ AI 서비스가 자기 구현을 맞춰 볼 수 있도록, 공개한 시험용 �
 
 Apache License 2.0
 
-## Summary (English)
+## English
 
-Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text, which is the core, and a printed yellow marker that carries the exam ID as a supplement. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). In E8 the registry was grown to 60,000 items drawn from the same templates as the practice problems; detection of rewritten questions stayed at 99.4%, and once repeated numbers are counted, no practice problem was refused. E9 adds Korean items and items without numbers: the earlier rule refused none of the rewritten text-only questions, while a rule that sets aside stem phrases marked by the authority refused all 480 with no practice problem refused (parameters chosen on one item set, tested on another). E10 shows the number check is sensitive to reading errors in photos (about 7% of numeric items missed at a 1% character error rate), which is why the printed marker is kept as a second key. E11 shows that an insider at a cooperating service who knows how the items were generated can rebuild every item from the encrypted sets with about 18,600 guessed pieces, so the sets are now distributed locked (AES-256-GCM) and the key is released at the start of the exam; before the start no guess matched. E12 shows that splitting a question across messages is caught when the whole conversation during the exam is judged together, with no ordinary study conversation refused. E13 measures the authority's load (about 43 Korean questions per second per CPU core in this implementation, with no gain from batching) and publishes test vectors under a public test key so that a service can check its implementation value by value. The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT, model shown as GPT-Astra) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
-
-Quick start: `pip install -r requirements.txt`, then `cd code && python demo.py` (about five minutes). `python summarize_results.py` prints every number quoted in the documents from the raw results. All results come from print-and-capture simulation; the final marker decoder was revised after inspecting the E5 results, and the pre-revision numbers are also published.
+The full English version of this README, with every result table, is [README.en.md](README.en.md). An English translation of the operation walkthrough is [docs/operation_walkthrough_en.md](docs/operation_walkthrough_en.md). `python demo.py --en` and `python summarize_results.py --en` print in English.
 
 Contact: dongwhi01@hanyang.ac.kr

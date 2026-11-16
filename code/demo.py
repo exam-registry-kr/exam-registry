@@ -2,6 +2,7 @@
 
     python demo.py                 # default: ink 0.7, photo of 35% of the page height
     python demo.py --ink 0.5 --view 0.25
+    python demo.py --en            # English output
 
 Steps
   1. Registry   : an accredited authority signs an exam record (ID, time window,
@@ -32,12 +33,14 @@ def main():
     ap.add_argument("--view", type=float, default=0.35, help="photographed height as a share of the page height")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--out", default="demo_out")
+    ap.add_argument("--en", action="store_true", help="print in English")
     a = ap.parse_args()
+    L = (lambda ko, en: en) if a.en else (lambda ko, en: ko)
     os.makedirs(a.out, exist_ok=True)
     now = int(time.time())
 
     # 1. registry --------------------------------------------------------------
-    print("[1] 시험 등록")
+    print(L("[1] 시험 등록", "[1] Exam registration"))
     authority = Ed25519PrivateKey.generate()
     accredited = [authority.public_key()]
     text, qs = F.exam_page(a.seed)
@@ -47,7 +50,7 @@ def main():
                   items_hash=hashlib.sha256("".join(items).encode()).hexdigest(),
                   policy="content_match")
     sig = authority.sign(canon(record))
-    print("    등록 기록:", json.dumps({k: record[k] for k in ("exam_id", "title", "policy")}, ensure_ascii=False))
+    print(L("    등록 기록:", "    Registered record:"), json.dumps({k: record[k] for k in ("exam_id", "title", "policy")}, ensure_ascii=False))
 
     def registered_and_open(exam_id, t):
         if exam_id != int(record["exam_id"], 16):
@@ -62,7 +65,7 @@ def main():
         return record["window_start"] <= t <= record["window_end"]
 
     # 2. marker -----------------------------------------------------------------
-    print("[2] 시험지 표식")
+    print(L("[2] 시험지 표식", "[2] Exam page marker"))
     page = E.print_sim(E.compose(text, E.aruco_tile_mask(), (1, 1, 1 - a.ink)), np.random.default_rng(a.seed + 3))
     plain = E.print_sim(E.compose(text, None, None), np.random.default_rng(a.seed + 1))
     p = dict(E.BASE, view=a.view, Wc=1280)
@@ -71,26 +74,29 @@ def main():
         photo = E.capture(pg, p, np.random.default_rng(a.seed + 10))
         cv2.imwrite(os.path.join(a.out, f"photo_{name}.png"), cv2.cvtColor(photo, cv2.COLOR_RGB2BGR))
         found, chunks = X.match_enh(photo, F.ACTIVE)
+        what = L("표식 있는" if name == "marked" else "표식 없는", "Photo of the " + name + " exam page")
         if found is None:
-            print(f"    {'표식 있는' if name == 'marked' else '표식 없는'} 시험지 사진: 표식 없음 -> 정상 답변")
+            print(L(f"    {what} 시험지 사진: 표식 없음 -> 정상 답변", f"    {what}: no marker -> normal answer"))
         else:
             ok_now = registered_and_open(found, now)
             ok_later = registered_and_open(found, record["window_end"] + 1)
-            print(f"    {'표식 있는' if name == 'marked' else '표식 없는'} 시험지 사진: 시험 번호 {found:08X} 판독 (조각 {chunks}/6)"
-                  f" -> 시험 시간 중 {'거절' if ok_now else '정상 답변'}, 종료 후 {'거절' if ok_later else '정상 답변'}")
+            v = lambda ok: L("거절" if ok else "정상 답변", "refused" if ok else "normal answer")
+            print(L(f"    {what} 시험지 사진: 시험 번호 {found:08X} 판독 (조각 {chunks}/6) -> 시험 시간 중 {v(ok_now)}, 종료 후 {v(ok_later)}",
+                    f"    {what}: exam ID {found:08X} read ({chunks}/6 chunks) -> during the exam {v(ok_now)}, after it {v(ok_later)}"))
 
     # 3. content lookup ------------------------------------------------------------
-    print("[3] 문항 내용 조회")
+    print(L("[3] 문항 내용 조회", "[3] Content lookup"))
     server = O.Authority(items)
-    tests = [("원문 그대로", items[0]),
-             ("띄어쓰기·표현 변경", items[0].replace(" ", "").replace("구하시오", "구해줘")),
-             ("다른 숫자의 같은 유형 문제", O.change_numbers(items[0])),
-             ("무관한 질문", "광합성에서 빛 에너지가 화학 에너지로 바뀌는 과정을 설명해 줘")]
+    tests = [(L("원문 그대로", "Item as printed"), items[0]),
+             (L("띄어쓰기·표현 변경", "Spacing and wording changed"), items[0].replace(" ", "").replace("구하시오", "구해줘")),
+             (L("다른 숫자의 같은 유형 문제", "Same type, different numbers"), O.change_numbers(items[0])),
+             (L("무관한 질문", "Unrelated question"), "광합성에서 빛 에너지가 화학 에너지로 바뀌는 과정을 설명해 줘")]
     for label, q in tests:
         score, nums_ok = O.lookup(server, q)
-        verdict = "거절" if score >= 0.5 and nums_ok else "정상 답변"
-        print(f"    {label}: 일치율 {score:4.0%}, 숫자 일치 {'예' if nums_ok else '아니오'} -> {verdict}")
-    print(f"\n사진은 {a.out}/ 폴더에 저장되었습니다.")
+        hit = score >= 0.5 and nums_ok
+        print(L(f"    {label}: 일치율 {score:4.0%}, 숫자 일치 {'예' if nums_ok else '아니오'} -> {'거절' if hit else '정상 답변'}",
+                f"    {label}: pieces matched {score:4.0%}, numbers match {'yes' if nums_ok else 'no'} -> {'refused' if hit else 'normal answer'}"))
+    print(L(f"\n사진은 {a.out}/ 폴더에 저장되었습니다.", f"\nPhotos were saved to {a.out}/."))
 
 
 if __name__ == "__main__":

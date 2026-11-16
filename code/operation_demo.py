@@ -597,6 +597,7 @@ def main():
     print("\n역할별 정보")
     for r_ in roles:
         print(f"  {r_[0]}: 가진 것 = {r_[1]} / 갖지 않은 것 = {r_[2]}")
+    TRACE.sort(key=lambda r: r["time"])          # some checks are logged after the events they follow
     out = dict(exam=dict(exam_id=rec["exam_id"], title=rec["title"], start=fmt(S), end=fmt(E1)),
                trace=TRACE, roles=[dict(role=a_, has=b_, lacks=c_) for a_, b_, c_ in roles])
     json.dump(out, open(os.path.join(a.out, "trace.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
