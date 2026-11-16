@@ -519,7 +519,7 @@ Selection set (run 1.5x)
 
 | Share of the item's pieces | 60% | 65% | 70% | 75% | 80% | 85% | 90% | 95% |
 |---|---|---|---|---|---|---|---|---|
-| Wrongly refused (of 2,330) | 353 | 233 | 32 | 1 | 0 | 0 | 0 | 0 |
+| Wrongly refused (of 1,930: 720 practice problems, 10 stems, 1,200 practice conversations) | 353 | 233 | 32 | 1 | 0 | 0 | 0 | 0 |
 | Must-refuse questions refused | 77.3% | 77.3% | 77.3% | 77.2% | 77.2% | 77.2% | 77.2% | 77.2% |
 
 0.8 to 0.95 meet the condition and the middle, 90%, was taken. E16's 0.7 wrongly refused 32 once there were more conversations.
