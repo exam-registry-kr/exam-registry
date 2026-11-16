@@ -134,6 +134,7 @@ All experiments are computer simulations that model printing and photographing n
 | Can an insider at an AI service learn the items before the exam | With open sets, an insider who knows how the items were generated rebuilds all 120 Korean items from 18,605 guessed pieces (about 140 ordinary questions). With sets distributed locked and the key released at the start: 0 matches before the start | `python e11_insider_guessing.py` | about 1 min |
 | Questions split across messages | Verbatim splits are all refused. With numbers replaced by letters and the values sent separately, judging each message alone refuses 0 to 58% of Korean word problems; judging the whole conversation and putting values such as "A=168" back refuses 97 to 100%. 0 of 1,200 study conversations refused | `python e12_split_questions.py` | seconds |
 | Authority load, test vectors for integration | In this implementation one CPU core serves about 40 Korean questions per second; batching does not lower the cost per piece. Piece values and 7 decisions under a fixed public test key are published | `python e13_load_and_vectors.py` | about 20 s |
+| Why these piece lengths and thresholds | 2-character pieces refuse whole practice problems and are ruled out; 4 is the longest length that still refuses every text item at 5% reading errors. Share 0.5 for word problems is the highest value that loses no detection. E9's values for text items refuse 76 to 91 of every 1,000 study questions that quote part of a practice problem; proposed instead: 60 pieces and share 0.7 for typed questions (0 to 0.8 per 1,000), 60 pieces and share 0.6 for text read from photos (0.8 to 6.3 per 1,000) | `python e14_sensitivity.py` | about 1 min |
 
 ![Marker decoding by condition](figures/fig_e1_sweeps_v2.png)
 
@@ -329,6 +330,39 @@ The authority's only work per question is one elliptic-curve multiplication per 
 
 So that a service can check its own implementation, values made with a public test key (never used for a real exam) are in `results/E13-test_vectors.json`: the pieces and number tokens of 3 items (2 word problems, 1 text item), the encrypted value of each piece, the stem pieces, and the pieces and decisions of 7 queries (item as printed, spaces removed, practice problem with different numbers, repeated number, text item as printed, stem alone, choice marks typed as 1)). `--check` recomputes the values and confirms they are unchanged.
 
+### 3.12 Why these piece lengths and thresholds (E14)
+
+```
+python e14_sensitivity.py
+```
+
+Up to E9 the values were: 4-character pieces, share 0.5 for word problems, and at least 20 pieces with share 0.6 for items without numbers. Only 0.6 was chosen on a separate set of items, and only against whole practice problems. E14 chooses every value the same way (on a selection set, then checked on new items) and shows what each value gains and costs. Two new kinds of question were added: a run of 10% to 100% of an item's words, and a run taken from a practice problem. When a run from a practice problem is word for word part of a registered item, no content rule can tell it from exam text, so those runs are counted separately. First, n = 4 with E9's values was checked to reproduce E9's results.
+
+Piece length (E9's values unchanged, 180 new items)
+
+| Piece length | Whole practice problems refused (text) | Parts of practice problems refused (text) | Text items refused at 5% reading errors | Text items refused from a 10% run |
+|---|---|---|---|---|
+| 2 | 19/240 | 746/1200 | 100% | 72% |
+| 3 | 0/240 | 232/1200 | 100% | 73% |
+| 4 | 0/240 | 82/1200 | 100% | 65% |
+| 5 | 0/240 | 34/1200 | 99.4% | 53% |
+| 6 | 0/240 | 19/1200 | 97.2% | 43% |
+
+Two characters refuse whole practice problems and cannot be used. Longer pieces refuse fewer parts of practice problems but tolerate fewer reading errors and shorter quotes. Four is the longest length that refuses every text item at 5% reading errors. The number of pieces per question (median 51 to 64) hardly depends on the length, so the server cost is the same.
+
+Share for word problems: from 0.0 to 0.5 the rewritten questions are refused at the same 98.5%; at 0.6 98.3%, at 0.7 93.2%, at 0.8 77.3%. 0.5 is the highest value that loses no detection. Word problems get no minimum piece count. A minimum would refuse fewer short parts of same-template practice problems that happen to share one number (about 9 per 1,000), but at 20 pieces the refusal of rewritten questions falls to 94.2% and of partial copies to 35.8%.
+
+Thresholds for items without numbers (4 characters, text items, three sets of items)
+
+| Minimum pieces, share | Parts of practice problems refused (per 1,000) | Partial copies refused | Refused at 10% reading errors | Split into 8 messages: each message / last 2 / whole conversation |
+|---|---|---|---|---|
+| 20, 0.6 (E9) | 76 to 91 | 100% | 85 to 86% | 100% / 100% / 100% |
+| 40, 0.6 | 14 to 26 | 97% | 85 to 86% | 0% / 100% / 100% |
+| 60, 0.6 | 0.8 to 6.3 | 77 to 78% | 85 to 86% | 0% / 57% / 100% |
+| 60, 0.7 | 0 to 0.8 | 77 to 78% | 18 to 21% | 0% / 57% / 100% |
+
+No whole practice problem and no stem was refused at any of these values, and at least 99.8% of rewritten questions were refused. E9's values refuse 76 to 91 of every 1,000 study questions that quote part of a practice problem, an over-refusal E9 did not test. Values that reduce it lose short quotes and the per-message detection of split questions, and raising the share to 0.7 makes reading errors much more harmful. No single value is best on every count, so the proposal is to set the values by input path: typed questions have no reading errors and use 60 pieces and share 0.7; text read from photos uses 60 pieces and share 0.6. Split questions are all refused by the whole-conversation judgement of 3.10. The third set of items (seed 20261125) was used only to confirm, after the values had been chosen.
+
 ## 4. Reading the results
 
 - All results are simulations. Measurements with real cameras and real printed pages are tasks for the pilot stage.
@@ -336,11 +370,12 @@ So that a service can check its own implementation, values made with a public te
 - On the test page the marker was decoded even at low print strength, but on a real exam page dense with text and figures the lowest decodable strength is currently 50%. The goal is a strength barely visible to the eye (`figures/sample_target_faint.png`), which needs further research.
 - The accuracy of the content lookup was evaluated only on test items made for the experiments. The "rewritten questions" of E3 and 3.5 apply automatic changes to spacing, number formatting, sentence order, partial excerpts and word substitution. Questions completely reworded by hand are detected only to a limited extent.
 - The E8 items are test items built from 12 English sentence templates. They should be checked again on real exam items and real study questions. The matching time in E8 (about 40 ms per question at 60,000 items) was measured with a simple implementation and grows with the number of registered items.
-- The number-free rule of E9 is a proposal verified in the experiment code and is not yet used in the demonstration code (`demo.py`, `operation_demo.py`), whose items all contain numbers. The text items are test items built from sentence frames and should be checked again on real passages and real study questions. The share of 0.6 was chosen on these test items. The minimum of 20 pieces made no difference in this experiment (the same result from 0 to 30).
+- The number-free rule of E9 is a proposal verified in the experiment code and is not yet used in the demonstration code (`demo.py`, `operation_demo.py`), whose items all contain numbers. The text items are test items built from sentence frames and should be checked again on real passages and real study questions. The share of 0.6 was chosen on these test items. The minimum of 20 pieces made no difference for E9's questions, but it mattered a lot for questions that quote part of a practice problem (3.12).
 - Under E9, a quote of 20 or more pieces that matches a registered item exactly is refused even without its numbers; a practice problem with the same sentence frame typed without its numbers is one such case. A question with the same meaning in entirely different words cannot be caught by piece matching.
 - The reading errors of E10 come from a simple model in which each character fails independently. The error rate and error patterns of real services reading photos were not measured.
 - The locked sets of E11 prevent leaks before the exam starts but not guessing by an insider during the exam. How the key is delivered reliably at the start (for example published in the log under a signature) is left to the operational design. The guessing cost for a realistic attacker who does not know the item templates was not measured.
 - The value restoration of E12 handles only the "A=168" form. Numbers written in Korean words, or values described in words such as "the first value is 168", remain a limit, like synonyms. Judging the whole conversation requires the service to hold the conversation briefly during the exam.
+- In E14 the practice passages were built from the same sentence frames as the registered items, so the refusal rate for parts of practice problems may be higher than in real use. It should be measured again on real textbooks and real exam passages. The values E14 proposes (60 pieces with share 0.7 or 0.6 by input path) are not yet used in the demonstration code or in the code of E9 to E12.
 - The throughput of E13 is that of the Python demonstration. Optimized cryptographic libraries may be faster; this was not measured. During exam windows every text question sent to a cooperating service is subject to lookup, so actual question volumes in weeks crowded with school exams should be checked together with the services. Whether to answer or refuse when the authority's server is down must also be decided in the operational design.
 - The timing of the encrypted lookup was measured on the demonstration implementation with one CPU. Throughput at operating scale has to be measured after the shared lookup server is built.
 - The commercial AI test covers one model (GPT-Astra) and 36 photos. The exact text of the first-round prompt was not kept (`results/E5-003_prompts.md`). It should be checked again when the model changes.
@@ -365,10 +400,11 @@ So that a service can check its own implementation, values made with a public te
 | `code/e11_insider_guessing.py` | Insider guessing and locked distribution |
 | `code/e12_split_questions.py` | Split questions and judging whole conversations |
 | `code/e13_load_and_vectors.py` | Authority load, making and checking test vectors |
+| `code/e14_sensitivity.py` | Why these piece lengths and thresholds, and what each value costs |
 | `code/e5_legibility.py`, `e5_enh.py`, `e5_collect.py`, `e5_fp.py`, `e5_fp2.py` | Text reading vs marker decoding, final decoder, false matches on ordinary documents |
 | `code/e5_stage2.py`, `e5_stage2_score.py` | Photos for the commercial AI test and scoring |
 | `code/e6_make_sample.py`, `e6_check_decode.py` | Real exam page |
-| `results/` | Raw results (E1 to E13 follow the order above) |
+| `results/` | Raw results (E1 to E14 follow the order above) |
 | `figures/` | Result figures, sample test pages |
 | `docs/` | Policy proposal and specification (Korean), operation walkthrough (Korean and English) |
 
