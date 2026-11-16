@@ -1,0 +1,419 @@
+{
+ "experiment": "E11-001",
+ "attacker": "knows the item generator (templates and vocabulary), not the drawn values",
+ "n_items": {
+  "KN": 60,
+  "KT": 60
+ },
+ "numbers": {
+  "guesses": 3000,
+  "items_with_all_numbers_recovered": 120,
+  "of": 120
+ },
+ "word_problems": {
+  "rebuilt_exactly": 60,
+  "of": 60,
+  "distinct_pieces_guessed": 9138,
+  "seconds": 8.8,
+  "examples": [
+   {
+    "original": "다미는 사과 168개를 가지고 있다. 예나가 다미에게 사과 75개를 더 주었고, 다미는 그중 4개를 나누어 주었다. 남은 사과의 개수를 구하시오.",
+    "rebuilt": "다미는 사과 168개를 가지고 있다. 예나가 다미에게 사과 75개를 더 주었고, 다미는 그중 4개를 나누어 주었다. 남은 사과의 개수를 구하시오."
+   },
+   {
+    "original": "기차가 14시간 동안 167km를 달렸다. 같은 속력으로 27시간 동안 달리면 몇 km를 가는가?",
+    "rebuilt": "기차가 14시간 동안 167km를 달렸다. 같은 속력으로 27시간 동안 달리면 몇 km를 가는가?"
+   }
+  ]
+ },
+ "text_items": {
+  "all_parts_recovered": 60,
+  "of": 60,
+  "parts_recovered": 651,
+  "parts_total": 651,
+  "mean_pieces_covered": 0.8683,
+  "candidates_tested": 883210,
+  "distinct_pieces_guessed": 6467,
+  "seconds": 33.0,
+  "rows": [
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8629,
+    "extra": 1970
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8636,
+    "extra": 4681
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8618,
+    "extra": 2472
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8701,
+    "extra": 3693
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8684,
+    "extra": 1619
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.867,
+    "extra": 1992
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8745,
+    "extra": 1530
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8734,
+    "extra": 2816
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8649,
+    "extra": 2448
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8678,
+    "extra": 2243
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8676,
+    "extra": 1968
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8702,
+    "extra": 1989
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8605,
+    "extra": 2429
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8708,
+    "extra": 1530
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8598,
+    "extra": 2498
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8653,
+    "extra": 2033
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8667,
+    "extra": 3763
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8756,
+    "extra": 3234
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8714,
+    "extra": 4108
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8585,
+    "extra": 1992
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8738,
+    "extra": 1902
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8689,
+    "extra": 3275
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8617,
+    "extra": 659
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8661,
+    "extra": 2058
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8624,
+    "extra": 3417
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8669,
+    "extra": 4127
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8725,
+    "extra": 2013
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8734,
+    "extra": 2539
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8711,
+    "extra": 2468
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8722,
+    "extra": 1624
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.869,
+    "extra": 3231
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8615,
+    "extra": 1647
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.865,
+    "extra": 1159
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8729,
+    "extra": 2817
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8721,
+    "extra": 2155
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8608,
+    "extra": 3487
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8744,
+    "extra": 3649
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8811,
+    "extra": 1029
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.869,
+    "extra": 4152
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8707,
+    "extra": 1989
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8618,
+    "extra": 2543
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8629,
+    "extra": 3668
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8663,
+    "extra": 2148
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8655,
+    "extra": 1509
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8723,
+    "extra": 3649
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8667,
+    "extra": 2104
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.868,
+    "extra": 2930
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8836,
+    "extra": 1923
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8739,
+    "extra": 3690
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8683,
+    "extra": 2040
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8657,
+    "extra": 2523
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8699,
+    "extra": 2264
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8603,
+    "extra": 2956
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8694,
+    "extra": 2838
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.865,
+    "extra": 1942
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8721,
+    "extra": 678
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8702,
+    "extra": 2426
+   },
+   {
+    "parts": 12,
+    "recovered": 12,
+    "pieces_covered": 0.8745,
+    "extra": 2195
+   },
+   {
+    "parts": 11,
+    "recovered": 11,
+    "pieces_covered": 0.8718,
+    "extra": 1574
+   },
+   {
+    "parts": 10,
+    "recovered": 10,
+    "pieces_covered": 0.8643,
+    "extra": 3576
+   }
+  ]
+ },
+ "cost": {
+  "distinct_pieces_guessed": 18605,
+  "pieces_per_ordinary_question": 132.6,
+  "same_as_ordinary_questions": 140,
+  "authority_cpu_minutes": 0.1,
+  "note": "authority time per piece from E7 on one CPU"
+ },
+ "encrypted_equivalence": {
+  "identical": 2100,
+  "total": 2100
+ },
+ "locked_distribution": {
+  "guesses_matched_before_start": 0,
+  "guesses_tried": 200,
+  "sets_identical_after_key_release": true,
+  "ciphertext_bytes": 1098052,
+  "key_bytes": 32
+ }
+}

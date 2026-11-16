@@ -96,3 +96,26 @@ for p, e in e10["by_rate"].items():
     r = e["copies_refused"]
     print(f"   글자 오류율 {float(p):.0%}: 거절 영어 계산형 {r['EN']:.1%}, 한국어 계산형 {r['KN']:.1%}, 한국어 서술형 {r['KT']:.1%},"
           f" 연습문제 오인 {sum(e['practice_refused'].values())}/{3 * e['practice_of']}")
+
+print("10. AI 서비스 내부자의 사전 추측 (E11-001, 출제 틀을 모두 아는 공격자)")
+e11 = load("E11-001_results.json")
+print(f"   계산형 전체 복원 {e11['word_problems']['rebuilt_exactly']}/{e11['word_problems']['of']},"
+      f" 서술형 모든 문장 복원 {e11['text_items']['all_parts_recovered']}/{e11['text_items']['of']},"
+      f" 추측 {e11['cost']['distinct_pieces_guessed']:,}조각(보통 질문 약 {e11['cost']['same_as_ordinary_questions']}건 분량)")
+l = e11["locked_distribution"]
+print(f"   잠근 배포: 시작 전 일치 {l['guesses_matched_before_start']}/{l['guesses_tried']}, 열쇠 공개 후 원래 값과 같음: {'예' if l['sets_identical_after_key_release'] else '아니오'}")
+
+print("11. 문제를 나눠 물을 때 (E12-001)")
+e12 = load("E12-001_results.json")
+for key, label in (("verbatim_8", "그대로 8개로 나눔"), ("numbers_apart_8", "숫자 따로, 본문 8개"), ("numbers_apart_8_resolve", "숫자 따로, 본문 8개, 값 되돌리기")):
+    r = e12["attack"][key]
+    print(f"   {label}: 메시지마다 " + "/".join(f"{r['1'][g]:.0%}" for g in ("EN", "KN", "KT")) +
+          ", 대화 전체 " + "/".join(f"{r['all'][g]:.0%}" for g in ("EN", "KN", "KT")) + " (영어 계산형/한국어 계산형/서술형)")
+o = e12["ordinary"]
+print(f"   학습 대화 오인: 같은 유형 연속 {o['same_template_practice']['all']}/{o['same_template_practice']['of']}, 섞은 대화 {o['mixed_study']['all']}/{o['mixed_study']['of']}")
+
+print("12. 시험 기관 서버의 부하 (E13-001, 이 컴퓨터의 CPU 1개)")
+e13 = load("E13-001_results.json")["load"]
+print("   조각당 처리 시간: " + ", ".join(f"묶음 {b}개 {v['us_per_piece']}us" for b, v in e13["authority"].items()))
+q = e13["questions_per_second_per_core"]
+print(f"   CPU 1개당 초당 질문: 한국어 {q['korean']}건, 영어 {q['english']}건 / 가정 초당 {e13['sizing']['assumed_questions_per_second']:,}건이면 CPU {e13['sizing']['cores_needed_korean']}개")

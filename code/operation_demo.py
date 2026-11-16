@@ -10,7 +10,8 @@ Parties and what each one holds
                             head, and the shared lookup server for schools
   Exam authority          : its signing key, the exam items, its lookup key
   Printer                 : the exam number to print as the security pattern
-  AI service              : the public log, encrypted piece values, a marker decoder
+  AI service              : the public log, encrypted piece values (locked until the exam
+                            starts, see E11), a marker decoder
   Device maker            : exam numbers and time windows only (for AI that runs offline)
   Anyone (auditor)        : the public log, and after the exam the revealed items
 
@@ -31,6 +32,7 @@ import numpy as np, cv2
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives import serialization
 from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 
 def op_pieces(text):
@@ -48,6 +50,13 @@ raw = lambda pk: pk.public_bytes(serialization.Encoding.Raw, serialization.Publi
 pub_of = lambda hexkey: Ed25519PublicKey.from_public_bytes(bytes.fromhex(hexkey))
 set_hash = lambda published: hashlib.sha256(canon([sorted(a) + sorted(b) for a, b in published])).hexdigest()
 TRACE = []
+
+
+def lock(published):
+    """Lock a set of piece values; the 32-byte key is released only when the exam starts (E11)."""
+    key, nonce = AESGCM.generate_key(256), os.urandom(12)
+    blob = json.dumps([[sorted(a), sorted(b)] for a, b in published]).encode()
+    return dict(nonce=nonce, ct=AESGCM(key).encrypt(nonce, blob, b"exam-set")), key
 
 
 def log(t, actor, action, saw="", not_seen="", result="", phase=""):
@@ -194,7 +203,7 @@ class AIService:
     def __init__(self, name, ministry_pub, servers):
         import e5_enh as X, e7_oprf_lookup as O7
         self.name, self.ministry_pub, self.X, self.O7, self.servers = name, ministry_pub, X, O7, servers
-        self.schedule, self.values, self.refusals = {}, {}, {}
+        self.schedule, self.values, self.refusals, self.locked = {}, {}, {}, {}
 
     def sync(self, t, registry, signed_head, distributions):
         oc = registry.operator_cert
@@ -215,13 +224,40 @@ class AIService:
             self.schedule[e["record"]["exam_id"]] = e["record"]
         if prev != signed_head["head"]["head"]:
             return "장부 머리 불일치"
-        bad = 0
-        for eid, published in distributions.items():
-            if eid in self.schedule and set_hash(published) == self.schedule[eid]["lookup_set_hash"]:
+        kept = 0
+        for eid, box in distributions.items():
+            if eid in self.schedule:
+                self.locked[eid] = box
+                kept += 1
+        return f"장부 {len(registry.entries)}건 중 {ok}건을 직접 재검증, 잠긴 조각 값 묶음 {kept}건 보관(열쇠는 각 시험 시작 시각에 공개)"
+
+    def open_sets(self, t, keys):
+        """Open the locked sets whose exam has started and check them against the log."""
+        opened, bad = 0, 0
+        for eid, key in keys.items():
+            r, box = self.schedule.get(eid), self.locked.get(eid)
+            if r is None or box is None or t < r["window_start"]:
+                bad += 1
+                continue
+            try:
+                raw = json.loads(AESGCM(key).decrypt(box["nonce"], box["ct"], b"exam-set"))
+            except Exception:
+                bad += 1
+                continue
+            published = [(set(a), set(b)) for a, b in raw]
+            if set_hash(published) == r["lookup_set_hash"]:
                 self.values[eid] = published
+                opened += 1
             else:
                 bad += 1
-        return f"장부 {len(registry.entries)}건 중 {ok}건을 직접 재검증, 조각 값 묶음 {len(self.values)}건이 등록 기록과 일치" + (f", 불일치 {bad}건 폐기" if bad else "")
+        return f"묶음 {opened}건을 열어 장부의 요약값과 일치 확인" + (f", 열리지 않거나 불일치 {bad}건 폐기" if bad else "")
+
+    def insider_guess(self, server, guesses):
+        """What an insider can learn before the start: guessed pieces have nothing to be compared with."""
+        fx = self.O7.oprf(server, guesses)
+        ct = b"".join(b["ct"] for b in self.locked.values())
+        hits = sum(bytes.fromhex(v) in ct for v in fx) + sum(any(v in p for p, _ in pub) for v in fx for pub in self.values.values())
+        return hits
 
     def _open(self, t):
         return [r for r in self.schedule.values() if r["window_start"] <= t <= r["window_end"]]
@@ -362,8 +398,11 @@ def main():
     r = registry.submit(t, trec, tsig, kice.chain, kice.public_key)
     log(t, "시험 기관(한국교육과정평가원)", "연동 시험용 가짜 시험을 30분짜리로 등록", phase=P2,
         saw="연동 시험 문항(실제 시험과 무관)", result=r)
-    log(t + 600, "AI 서비스", "장부와 조각 값을 받아 동기화", phase=P2,
-        result=ai.sync(t + 600, registry, registry.signed_head(t + 600), {trec["exam_id"]: tpub}))
+    tbox, tkey = lock(tpub)
+    log(t + 600, "AI 서비스", "장부와 잠긴 조각 값 묶음을 받아 동기화", phase=P2,
+        result=ai.sync(t + 600, registry, registry.signed_head(t + 600), {trec["exam_id"]: tbox}))
+    log(T(14, 0, -14), "시험 기관(한국교육과정평가원)", "연동 시험 시작 시각에 묶음 열쇠 공개", phase=P2,
+        result="열쇠 32바이트 공개. AI 서비스: " + ai.open_sets(T(14, 0, -14), {trec["exam_id"]: tkey}))
     tpage, _ = print_page(E, F, 7070, TEST_ID)
     tphoto = E.capture(tpage, dict(E.BASE, view=0.5, Wc=1280), np.random.default_rng(21))
     for tt, act, fn in [
@@ -431,12 +470,12 @@ def main():
     log(t + 300, "국가 등록부", "인가 기관이 직접 서명한 30시간짜리 차단", phase=P4,
         result=registry.submit(t + 300, long_, kice.sign(long_), kice.chain, kice.public_key))
 
-    dists = {rec["exam_id"]: kpub}
+    plain = {rec["exam_id"]: kpub}
     for i, (sch, other) in enumerate(zip(schools, F.ACTIVE[1:])):
         spub = sch.piece_values()
         srec, ssig = sch.record(other, "학교 내신", f"학교 {i + 1} 기말고사", S, E1, spub, "공용 조회 서버")
         registry.submit(t + 600, srec, ssig, sch.chain, sch.public_key)
-        dists[srec["exam_id"]] = spub
+        plain[srec["exam_id"]] = spub
     log(t + 600, f"학교 {len(schools)}곳", "교원이 학교 컴퓨터에서 문항 조각을 가린 채 공용 조회 서버로 암호화하고 같은 시간대 기말고사를 등록", phase=P4,
         saw="자기 학교 문항(학교 안에만 보관)", not_seen="다른 학교 문항, 공용 서버의 비밀 키",
         result=f"장부 {len(registry.entries)}건(연동 시험 포함). 공용 조회 서버가 받은 것은 가려진 값뿐(요청 {shared.queries}회)")
@@ -447,15 +486,18 @@ def main():
     head = registry.signed_head(t)
     log(t, "등록부 운영 기관", "장부 머리(건수와 마지막 연결값)에 운영 기관 키로 서명해 공개", phase=P4,
         result=f"장부 {head['head']['size']}건, 마지막 연결값 {head['head']['head'][:12]}…. 운영 기관이 나중에 장부를 바꾸면 이 서명과 맞지 않음")
-    log(t + 1800, "시험 기관과 학교", "암호화 조각 값 묶음을 AI 서비스에 배포", phase=P4,
-        result=f"묶음 {len(dists)}건. 각 묶음의 요약값은 장부의 등록 기록에 들어 있음")
-    bad = dict(dists)
-    bad[rec["exam_id"]] = kpub[:-1]
-    log(t + 3600, "AI 서비스", "장부와 조각 값 묶음을 받아 직접 재검증(중간에 한 묶음이 잘린 경우)", phase=P4,
-        saw=f"등록 시험의 번호, 종류, 시간, 조각 값", not_seen="문항 원문, 조회 비밀 키",
-        result=AIService("검증용", ministry.public_key, servers).sync(t + 3600, registry, head, bad))
-    log(t + 3660, "AI 서비스", "원본 묶음으로 다시 동기화", phase=P4,
-        result=ai.sync(t + 3660, registry, head, dists))
+    boxes = {eid: lock(pub) for eid, pub in plain.items()}
+    dists = {eid: b for eid, (b, _) in boxes.items()}
+    keys = {eid: k for eid, (_, k) in boxes.items()}
+    log(t + 1800, "시험 기관과 학교", "암호화 조각 값 묶음을 잠가서 AI 서비스에 배포", phase=P4,
+        result=f"잠긴 묶음 {len(dists)}건. 여는 열쇠는 각 시험 기관이 시험 시작 시각까지 보관. 각 묶음의 요약값은 장부의 등록 기록에 들어 있음")
+    log(t + 3600, "AI 서비스", "장부를 직접 재검증하고 잠긴 묶음을 보관", phase=P4,
+        saw="등록 시험의 번호, 종류, 시간, 잠긴 묶음", not_seen="문항 원문, 조각 값, 조회 비밀 키",
+        result=ai.sync(t + 3600, registry, head, dists))
+    guesses = sorted(op_pieces(items[0])[0])
+    log(t + 3700, "AI 서비스 내부자", "시험 문항을 미리 알아내려고 추측한 조각을 조회 서버로 암호화해 묶음과 대조", phase=P4,
+        saw="추측한 조각의 암호화 값, 잠긴 묶음", not_seen="열린 조각 값",
+        result=f"실제 문항의 조각 {len(guesses)}개를 그대로 추측해도 대조할 값이 없어 일치 {ai.insider_guess(kice.lookup, guesses)}건. 묶음이 열려 있었다면 추측만으로 문항을 복원할 수 있음(E11)")
 
     windows = [dict(exam_id=e["record"]["exam_id"], start=e["record"]["window_start"], end=e["record"]["window_end"])
                for e in registry.entries if e["record"]["window_end"] > t]
@@ -490,6 +532,7 @@ def main():
     q_other = "광합성에서 빛 에너지가 화학 에너지로 바뀌는 과정을 설명해 줘."
     for tt, who, act, fn in [
         (T(8, 20), "AI 서비스", "시험 시작 전, 시험지 사진 입력", lambda tt: ai.photo(tt, photo_svc)),
+        (S, "KEY", "", None),
         (T(9, 5), "AI 서비스", "시험 중, 휴대폰으로 찍은 시험지 일부 사진", lambda tt: ai.photo(tt, photo_svc)),
         (T(9, 7), "AI 서비스", "시험 중, 교과서 사진(시험지 아님)", lambda tt: ai.photo(tt, photo_book)),
         (T(9, 10), "AI 서비스", "시험 중, 시험 문제를 글로 옮겨 입력", lambda tt: ai.text(tt, q_exam)[0]),
@@ -501,6 +544,17 @@ def main():
         (T(10, 1), "AI 서비스", "시험 종료 1분 뒤, 같은 시험지 사진", lambda tt: ai.photo(tt, photo_svc)),
         (T(10, 2), "AI 서비스", "시험 종료 뒤, 같은 문제를 글로 입력", lambda tt: ai.text(tt, q_exam)[0]),
     ]:
+        if who == "KEY":
+            log(tt, "시험 기관과 학교", "시험 시작 시각에 묶음 열쇠를 공개", phase=P5,
+                result=f"열쇠 {len(keys)}개(각 32바이트) 공개")
+            forged_box = dict(dists[rec["exam_id"]], ct=dists[rec["exam_id"]]["ct"][:-1] + bytes([dists[rec["exam_id"]]["ct"][-1] ^ 1]))
+            check = AIService("검증용", ministry.public_key, servers)
+            check.sync(tt, registry, head, dict(dists, **{rec["exam_id"]: forged_box}))
+            log(tt, "AI 서비스", "열쇠로 묶음을 열고 장부의 요약값과 대조(배포 중에 한 묶음이 변조된 경우)", phase=P5,
+                saw="열린 조각 값", not_seen="문항 원문, 조회 비밀 키", result=check.open_sets(tt, keys))
+            log(tt, "AI 서비스", "열쇠로 묶음을 열고 장부의 요약값과 대조", phase=P5,
+                saw="열린 조각 값", not_seen="문항 원문, 조회 비밀 키", result=ai.open_sets(tt, keys))
+            continue
         q0 = (kice.lookup.queries, shared.queries)
         res = fn(tt)
         saw = "사용자가 보낸 사진 또는 문장(" + ("서비스" if who == "AI 서비스" else "기기") + " 안에서만 처리)"
@@ -536,7 +590,7 @@ def main():
         ("등록부 운영 기관", "공개 장부, 장부 머리 서명 키, 공용 조회 서버 비밀 키", "문항 원문, 사용자의 질문과 신원"),
         ("시험 기관", "자기 문항 원문, 서명 키, 조회 비밀 키", "사용자의 질문과 신원, 다른 기관의 문항"),
         ("인쇄소", "문항과 시험 번호(현행과 같음)", "서명 키, 조회 비밀 키"),
-        ("AI 서비스", "공개 장부, 암호화 조각 값, 사용자 입력(서비스 안)", "문항 원문, 조회 비밀 키"),
+        ("AI 서비스", "공개 장부, 잠긴 암호화 조각 값(시험 시작 시각에 열림), 사용자 입력(서비스 안)", "문항 원문, 조회 비밀 키, 시험 전의 조각 값"),
         ("기기 제조사와 기기", "시험 번호와 시간 목록", "문항, 조각 값, 사용자 사진(기기 밖으로 나가지 않음)"),
         ("누구나", "공개 장부, 시험 후 공개된 문항, 시험별 거절 건수", "사용자의 질문과 신원"),
     ]

@@ -2,7 +2,7 @@
 
 진행 중인 시험 문제에 AI가 답하지 않도록 하는 국가 단위 등록 체계의 설계 문서, 시뮬레이션 코드, 실험 결과입니다. 수능에서 시작하여 자격시험, 대학 시험, 학교 내신으로 단계적으로 확대하고, 국제 표준으로 제안하는 것을 목표로 합니다. 누구나 아래 절차에 따라 결과를 직접 확인하고 재현할 수 있습니다.
 
-이 제안은 2026년 11월 15일 국민신문고 일반제안으로 교육부에 제출하였습니다. 정책 제안서는 제출 당시의 판입니다. 이후 추가한 실험(상용 AI 판독 시험, 암호화 조회 검증, 등록 규모 확대 시험, 한국어·숫자 없는 문항 시험, 글자 오류 시험, 운영 과정 시연)은 이 저장소에서 확인할 수 있습니다.
+이 제안은 2026년 11월 15일 국민신문고 일반제안으로 교육부에 제출하였습니다. 정책 제안서는 제출 당시의 판입니다. 이후 추가한 실험(상용 AI 판독 시험, 암호화 조회 검증, 등록 규모 확대 시험, 한국어·숫자 없는 문항 시험, 글자 오류 시험, 내부자 추측 시험, 나눠 묻기 시험, 서버 부하와 연동 시험 값, 운영 과정 시연)은 이 저장소에서 확인할 수 있습니다.
 
 문의: 김동휘(한양대학교 전기공학과), dongwhi01@hanyang.ac.kr
 
@@ -94,8 +94,8 @@ python operation_demo.py
 1. 사전 준비: 교육부가 등록부 운영 기관을 지정하고, 평가원을 직접 인가하며, 교육청에 학교 인가 권한을 위임합니다. AI 서비스와 기기 제조사와 협약을 맺습니다.
 2. 연동 시험: 30분짜리 가짜 시험을 등록해 AI 서비스가 시험 시간에만 거절하는지 점검합니다.
 3. 시험 준비: 문항 확정, 장부에서 쓰지 않은 시험 번호 확인, 문항 조각 암호화, 인쇄, 인쇄 견본 판독 검수.
-4. 등록과 배포: 서명한 기록을 등록하고, 미인가 단체, 학교의 수능 종류 등록, 번호 중복, 전송 중 변경, 30시간 차단을 거부합니다. 학교는 문항을 보이지 않고 공용 조회 서버로 조각을 암호화해 등록합니다. 운영 기관이 장부 머리에 서명하고, AI 서비스는 장부와 조각 값 묶음을 직접 재검증하며(잘린 묶음은 폐기), 기기 제조사는 시험 번호와 시간만 서명해 내려보냅니다(끼워 넣은 목록은 설치 거부). 누구나 다음 날 차단될 시험을 미리 확인합니다.
-5. 시험 당일: 시험 전, 중, 후의 사진과 문장 입력, 기기 내장 AI, 시작 뒤 추가 등록 시도.
+4. 등록과 배포: 서명한 기록을 등록하고, 미인가 단체, 학교의 수능 종류 등록, 번호 중복, 전송 중 변경, 30시간 차단을 거부합니다. 학교는 문항을 보이지 않고 공용 조회 서버로 조각을 암호화해 등록합니다. 운영 기관이 장부 머리에 서명하고, 조각 값 묶음은 잠근 채 배포되고 AI 서비스는 장부를 직접 재검증한 뒤 잠긴 묶음을 보관하며(내부자가 미리 대조해 볼 값이 없음, 3.9), 기기 제조사는 시험 번호와 시간만 서명해 내려보냅니다(끼워 넣은 목록은 설치 거부). 누구나 다음 날 차단될 시험을 미리 확인합니다.
+5. 시험 당일: 시작 시각에 묶음 열쇠 공개와 개봉(변조된 묶음은 폐기), 시험 전, 중, 후의 사진과 문장 입력, 기기 내장 AI, 시작 뒤 추가 등록 시도.
 6. 시험 후: 문항 공개와 약속값 대조, 장부 연결 확인, 시험별 거절 건수 보고.
 
 단계마다 누가 무엇을 보았고 무엇을 보지 못했는지를 출력합니다. 판정은 실제로 계산한 결과이며 실행할 때마다 같습니다. 결과는 `operation_demo_out/`에 시간표(`operation_demo.html`, `operation_demo.md`)와 사진으로 저장되며, 한 번 실행한 결과를 [`docs/운영과정_시연.md`](docs/운영과정_시연.md)에 올려 두었습니다.
@@ -124,6 +124,9 @@ python summarize_results.py
 | 등록 문항이 6만 개로 늘어날 때 | 바꿔 쓴 질문 탐지 99.4% 유지. 연습문제 오인은 E7 규칙에서 6천 개부터 1/240, 반복 숫자를 횟수까지 맞추는 보완 규칙에서 6만 개까지 0/240 | `python e8_registry_scale.py` | 약 30초 |
 | 한국어 문항, 숫자 없는 문항 | 기존 규칙은 숫자 없는 서술형 문항을 0% 거절. 제안 규칙은 바꿔 쓴 질문 480건을 100% 거절, 연습문제 오인 0/240, 발문만 입력한 질문 거절 0/10. 한국어 계산형은 99.7% (새 문항으로 확인한 값) | `python e9_korean_text_items.py` | 약 1분 |
 | 사진에서 읽은 글자에 오류가 있을 때 | 글자 오류율 5%에서 서술형 100%, 계산형 70~76% 거절. 계산형은 숫자 한 글자만 틀려도 놓침. 연습문제 오인은 모든 오류율에서 0/720 | `python e10_reading_errors.py` | 수 초 |
+| AI 서비스 내부자가 시험 전에 문항을 알아낼 수 있는가 | 조각 값 묶음이 열려 있으면 출제 틀을 아는 내부자가 추측 18,605조각(보통 질문 약 140건 분량)으로 한국어 문항 120개를 모두 복원. 묶음을 잠가 배포하고 열쇠를 시험 시작 시각에 공개하면 시작 전 일치 0건 | `python e11_insider_guessing.py` | 약 1분 |
+| 문제를 여러 메시지로 나눠 물을 때 | 그대로 나눈 경우 모두 거절. 숫자를 문자로 바꾸고 값을 따로 보내면 메시지마다 판정 시 한국어 계산형 0~58% 거절, 대화 전체를 판정하고 "A=168" 같은 값을 제자리에 넣으면 97~100%. 학습 대화 1,200건 오인 0건 | `python e12_split_questions.py` | 수 초 |
+| 시험 기관 서버의 부하, 연동 확인용 시험 값 | 이 구현에서 CPU 1개가 한국어 질문 초당 약 40건 처리, 묶어서 보내도 조각당 비용은 같음. 고정된 시험용 키로 만든 조각 값과 판정 7건을 공개 | `python e13_load_and_vectors.py` | 약 20초 |
 
 ### 3.1 표식 판독
 
@@ -267,6 +270,56 @@ AI 서비스가 사진을 받으면 글자를 먼저 읽고 그 글자로 조회
 
 서술형 문항은 글자 오류율 5%까지 모두 거절되었습니다. 계산형 문항은 숫자 한 글자만 잘못 읽어도 숫자 검사를 통과하지 못해, 오류율 1%에서도 약 7%를 놓쳤습니다. 숫자 검사를 느슨하게 하면 숫자만 다른 연습문제를 막게 되므로(3.6) 규칙은 바꾸지 않았습니다. 사진으로 들어온 계산형 문항은 글자 읽기에 의존하지 않는 시험지 표식(3.1~3.3)이 함께 있어야 하는 이유입니다. 오류는 거절을 줄이는 방향으로만 작용했고, 연습문제를 잘못 막은 경우는 없었습니다.
 
+### 3.9 AI 서비스 내부자의 사전 추측 (E11)
+
+```
+python e11_insider_guessing.py
+```
+
+협조하는 AI 서비스는 등록 문항의 암호화된 조각 값 묶음을 받고, 질문을 조회할 때처럼 아무 조각이나 시험 기관 서버에 암호화해 달라고 할 수 있습니다. 그래서 서비스 내부의 누군가가 조각을 추측해 암호화한 뒤 묶음에 있는지 확인하면, 시험 전에 문항을 복원할 수 있는지를 시험했습니다. 공격자는 일부러 가장 강하게 두었습니다. 실험 문항을 만든 틀과 어휘(문장 틀, 이름, 발문, 주제, 명사)를 모두 알고, 뽑힌 값만 모르는 내부자입니다. 실제 출제 위원은 출제 틀을 공개하지 않으므로 실제 공격자는 이보다 약합니다. 대상은 3.7의 새 문항 중 한국어 계산형 60개와 서술형 60개입니다.
+
+| 측정 | 결과 |
+|---|---|
+| 숫자 추측(0~999, 반복 포함 3,000회) | 120개 문항 모두 숫자를 전부 알아냄 |
+| 계산형 문항 전체 복원 | 60/60 |
+| 서술형 문항의 발문, 지문 문장, 선지 복원 | 60/60 (651개 문장 모두) |
+| 추측한 서로 다른 조각 수 | 18,605개. 보통 질문 1건의 조각 수(132.6개)로 나누면 약 140건, 시험 기관 서버 CPU로 약 0.1분 |
+| 암호화 값으로 직접 확인 | 추측 2,100개 모두 일반 대조와 같은 결과 |
+
+추측에 필요한 양이 보통 질문 약 140건 분량이라, 이용자가 많은 서비스에서는 조회 횟수 제한이나 이상 탐지로 가려낼 수 없습니다. 그래서 조각 값 묶음이 시험 전에 열려 있어서는 안 됩니다. 묶음을 AES-256-GCM으로 잠가 전날 배포하고, 32바이트 열쇠를 시험 시작 시각에 공개하는 방식을 함께 시험했습니다. 시작 전에는 추측 200개 중 일치가 0건이었고, 열쇠를 공개한 뒤에는 묶음이 원래 값과 똑같이 열렸습니다. 운영 과정 시연(2.3)도 이 방식으로 바꾸었습니다. 시험이 진행되는 동안에는 내부자가 같은 방법으로 문항을 알아낼 수 있지만, 그때는 응시자가 이미 시험지를 받은 뒤입니다.
+
+### 3.10 문제를 여러 메시지로 나눠 물을 때 (E12)
+
+```
+python e12_split_questions.py
+```
+
+한 메시지에 담긴 조각이 적으면 거절 기준에 못 미칠 수 있으므로, 문제를 나눠 보내는 경우를 시험했습니다. 3.7의 새 문항 180개와 제안 규칙을 그대로 썼습니다.
+
+- 그대로 나누기: 문항을 연속된 낱말 묶음 2, 4, 8개로 나눠 하나씩 보냄
+- 숫자 따로 보내기: 숫자를 A, B, C로 바꾼 본문을 1, 2, 4, 8개로 나눠 보내고, 마지막에 "A=168, B=75, C=4"를 보냄
+
+| 공격 | 판정 방식 | 영어 계산형 | 한국어 계산형 | 한국어 서술형 |
+|---|---|---|---|---|
+| 그대로 나누기(2~8개) | 메시지마다 | 100% | 100% | 100% |
+| 숫자 따로 보내기(본문 1개) | 메시지마다 | 92% | 58% | 100% |
+| 숫자 따로 보내기(본문 8개) | 메시지마다 | 0% | 0% | 100% |
+| 숫자 따로 보내기(본문 8개) | 대화 전체 | 92% | 58% | 100% |
+| 숫자 따로 보내기(본문 1~8개) | 대화 전체 + 값 되돌리기 | 97% | 100% | 100% |
+
+그대로 나눈 조각은 짧아도 등록 문항의 일부를 그대로 옮긴 것이어서 모두 거절되었습니다. 숫자를 따로 보내면 계산형 문항은 메시지마다 판정할 때 대부분 통과했습니다. 시험 시간 동안 같은 대화의 메시지를 모두 합쳐 판정하고, "A=168"처럼 주어진 값을 본문의 A 자리에 다시 넣으면(문제를 이해하지 않는 단순한 문자 치환) 97~100%가 거절되었습니다. 영어 계산형에서 놓친 3%는 본문의 관사 "A"가 치환 문자와 겹친 경우입니다. 같은 유형 연습문제를 4개 연속으로 묻는 대화 600건과, 연습문제, 발문, 짧은 후속 질문을 섞은 대화 600건은 어느 판정 방식에서도 거절되지 않았습니다.
+
+### 3.11 시험 기관 서버의 부하와 연동 확인용 시험 값 (E13)
+
+```
+python e13_load_and_vectors.py
+python e13_load_and_vectors.py --check
+```
+
+시험 기관 서버가 질문마다 하는 일은 조각마다 타원곡선 곱셈 한 번입니다. 이 컴퓨터의 CPU 1개로 조각을 1개, 70개, 1,000개, 10,000개씩 묶어 처리한 결과, 조각당 약 163~188마이크로초로 묶음 크기와 거의 무관했습니다. 묶어 보내도 서버 비용은 줄지 않고, 비용은 조각 수에 비례합니다. 한국어 질문의 조각 수 중앙값(132개) 기준으로 CPU 1개가 초당 약 43건, 영어 질문(67개) 기준으로 약 84건을 처리합니다. 가정한 값인 초당 1,000건의 한국어 질문이면 이 구현으로 CPU 약 24개가 필요합니다. AI 서비스 쪽에서 한국어 질문 1건을 가리고 되돌리는 데는 약 105ms가 걸렸습니다.
+
+AI 서비스가 자기 구현을 맞춰 볼 수 있도록, 공개한 시험용 키(실제 시험에는 쓰지 않음)로 만든 값을 `results/E13-test_vectors.json`에 두었습니다. 문항 3개(계산형 2, 서술형 1)의 조각과 숫자 토큰, 각 조각의 암호화 값, 발문 조각, 그리고 질문 7개(그대로 입력, 띄어쓰기 제거, 숫자만 다른 연습문제, 반복 숫자, 서술형 원문, 발문만 입력, 선지 번호를 1)로 입력)의 조각과 판정을 담았습니다. `--check`는 이 값을 다시 계산해 그대로인지 확인합니다.
+
 ## 4. 결과를 읽을 때 유의할 점
 
 - 모든 결과는 시뮬레이션입니다. 실제 카메라 촬영과 실제 인쇄물 측정은 시범 운영 단계에서 수행할 과제입니다.
@@ -277,6 +330,9 @@ AI 서비스가 사진을 받으면 글자를 먼저 읽고 그 글자로 조회
 - E9의 숫자 없는 문항 규칙은 실험 코드에서 검증한 제안이며, 시연 코드(`demo.py`, `operation_demo.py`)에는 아직 반영하지 않았습니다. 시연의 문항은 모두 숫자가 있는 문항입니다. 서술형 문항은 문장 틀로 만든 실험용 문항이고 실제 지문과 실제 학습 질문으로는 다시 확인해야 합니다. 일치율 기준 0.6은 이 실험용 문항에서 정한 값입니다. 최소 조각 수 20개는 이 실험에서는 결과에 영향을 주지 않았습니다(0~30개에서 같은 결과).
 - E9에서 숫자가 빠진 채 20조각 이상이 등록 문항과 그대로 일치하는 인용은 거절됩니다. 문장 틀이 같은 연습문제에서 숫자 없는 부분만 입력한 경우가 이에 해당합니다. 뜻은 같고 표현을 전부 바꾼 질문은 조각 대조로 잡을 수 없습니다.
 - E10의 글자 오류는 글자마다 독립으로 생기는 단순한 모형입니다. 실제 서비스가 사진을 읽을 때의 오류율과 오류의 모양은 재지 않았습니다.
+- E11의 잠근 묶음은 시험 시작 전의 유출을 막을 뿐, 시험 중 내부자의 추측은 막지 못합니다. 열쇠를 시작 시각에 확실히 전달하는 방법(장부에 서명해 공개 등)은 운영 설계에서 정해야 합니다. 출제 틀을 모르는 현실적인 공격자의 추측 비용은 재지 않았습니다.
+- E12의 값 되돌리기는 "A=168" 형식만 처리합니다. 숫자를 한글로 쓰거나 "첫째 값은 168"처럼 말로 풀어 보내는 경우는 유의어 치환과 같은 한계로 남습니다. 대화 전체 판정은 시험 시간 동안 대화 내용을 서비스 안에서 잠시 모아 두어야 합니다.
+- E13의 처리량은 Python 시연 구현의 값입니다. 최적화된 암호 라이브러리에서는 더 빠를 수 있으나 재지 않았습니다. 시험 시간에는 협조하는 서비스에 들어오는 모든 글 질문이 조회 대상이 되므로, 학교 시험이 몰리는 기간의 실제 질문량은 서비스와 함께 확인해야 합니다. 시험 기관 서버가 멈췄을 때 답할지 막을지의 기본값도 운영 설계에서 정해야 합니다.
 - 암호화 조회의 처리 시간은 시연 구현을 CPU 1개로 측정한 값입니다. 실제 운영 규모의 처리량은 공용 조회 서버를 구현한 뒤 측정해야 합니다.
 - 상용 AI 판독 시험은 한 모델(GPT-Astra), 사진 36장의 결과입니다. 1차 질문의 원문은 보관하지 못했습니다(`results/E5-003_prompts.md`). 모델이 바뀌면 다시 확인해야 합니다.
 - 라이브러리 버전이 크게 다르면 영상 처리 결과가 소수의 시행에서 달라질 수 있습니다. 시험한 버전은 `requirements.txt`에 적었습니다.
@@ -297,10 +353,13 @@ AI 서비스가 사진을 받으면 글자를 먼저 읽고 그 글자로 조회
 | `code/e8_registry_scale.py` | 등록 문항 수를 늘렸을 때의 탐지와 오인 |
 | `code/e9_korean_text_items.py` | 한국어 문항과 숫자 없는 문항의 판정 규칙 비교 |
 | `code/e10_reading_errors.py` | 읽은 글자에 오류가 있을 때의 판정 |
+| `code/e11_insider_guessing.py` | AI 서비스 내부자의 사전 추측과 잠근 배포 |
+| `code/e12_split_questions.py` | 문제를 나눠 묻는 경우와 대화 단위 판정 |
+| `code/e13_load_and_vectors.py` | 시험 기관 서버 부하 측정, 연동 확인용 시험 값 생성과 확인 |
 | `code/e5_legibility.py`, `e5_enh.py`, `e5_collect.py`, `e5_fp.py`, `e5_fp2.py` | 문장 판독과 표식 판독 비교, 최종 판독기, 일반 문서 오인 검사 |
 | `code/e5_stage2.py`, `e5_stage2_score.py` | 상용 AI 판독 시험용 사진 생성과 채점 |
 | `code/e6_make_sample.py`, `e6_check_decode.py` | 실제 시험지 적용 |
-| `results/` | 실험 원자료 (파일명 앞의 E1~E10은 위 실험 순서) |
+| `results/` | 실험 원자료 (파일명 앞의 E1~E13은 위 실험 순서) |
 | `figures/` | 결과 그래프, 실험용 시험지 견본 |
 | `docs/` | 정책 제안서, 기술 명세 |
 
@@ -314,7 +373,7 @@ Apache License 2.0
 
 ## Summary (English)
 
-Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text, which is the core, and a printed yellow marker that carries the exam ID as a supplement. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). In E8 the registry was grown to 60,000 items drawn from the same templates as the practice problems; detection of rewritten questions stayed at 99.4%, and once repeated numbers are counted, no practice problem was refused. E9 adds Korean items and items without numbers: the earlier rule refused none of the rewritten text-only questions, while a rule that sets aside stem phrases marked by the authority refused all 480 with no practice problem refused (parameters chosen on one item set, tested on another). E10 shows the number check is sensitive to reading errors in photos (about 7% of numeric items missed at a 1% character error rate), which is why the printed marker is kept as a second key. The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT, model shown as GPT-Astra) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
+Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text, which is the core, and a printed yellow marker that carries the exam ID as a supplement. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). In E8 the registry was grown to 60,000 items drawn from the same templates as the practice problems; detection of rewritten questions stayed at 99.4%, and once repeated numbers are counted, no practice problem was refused. E9 adds Korean items and items without numbers: the earlier rule refused none of the rewritten text-only questions, while a rule that sets aside stem phrases marked by the authority refused all 480 with no practice problem refused (parameters chosen on one item set, tested on another). E10 shows the number check is sensitive to reading errors in photos (about 7% of numeric items missed at a 1% character error rate), which is why the printed marker is kept as a second key. E11 shows that an insider at a cooperating service who knows how the items were generated can rebuild every item from the encrypted sets with about 18,600 guessed pieces, so the sets are now distributed locked (AES-256-GCM) and the key is released at the start of the exam; before the start no guess matched. E12 shows that splitting a question across messages is caught when the whole conversation during the exam is judged together, with no ordinary study conversation refused. E13 measures the authority's load (about 43 Korean questions per second per CPU core in this implementation, with no gain from batching) and publishes test vectors under a public test key so that a service can check its implementation value by value. The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT, model shown as GPT-Astra) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
 
 Quick start: `pip install -r requirements.txt`, then `cd code && python demo.py` (about five minutes). `python summarize_results.py` prints every number quoted in the documents from the raw results. All results come from print-and-capture simulation; the final marker decoder was revised after inspecting the E5 results, and the pre-revision numbers are also published.
 

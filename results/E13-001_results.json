@@ -1,0 +1,39 @@
+{
+ "experiment": "E13-001",
+ "load": {
+  "cpu": "one core of the machine that ran this script",
+  "authority": {
+   "1": {
+    "us_per_piece": 187.0,
+    "pieces_per_second": 5348
+   },
+   "70": {
+    "us_per_piece": 187.7,
+    "pieces_per_second": 5327
+   },
+   "1000": {
+    "us_per_piece": 177.8,
+    "pieces_per_second": 5623
+   },
+   "10000": {
+    "us_per_piece": 162.6,
+    "pieces_per_second": 6149
+   }
+  },
+  "pieces_per_question_median": {
+   "korean": 132.0,
+   "english": 67.0
+  },
+  "questions_per_second_per_core": {
+   "korean": 42.6,
+   "english": 83.9
+  },
+  "service_ms_per_korean_question_median": 105.4,
+  "sizing": {
+   "assumed_questions_per_second": 1000,
+   "cores_needed_korean": 24,
+   "note": "assumption, not a measurement: questions per second sent to one authority during an exam"
+  }
+ },
+ "vectors_file": "results/E13-test_vectors.json"
+}
