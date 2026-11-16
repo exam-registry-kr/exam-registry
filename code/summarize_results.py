@@ -72,3 +72,27 @@ for N in e8["sizes"]:
     cells = [f"{names[a]} 탐지 {e['detected_correct_item'][a]:.1%}, 연습문제 오인 {e['practice_refused'][a]}/{e8['n_practice']}"
              for a in ("top_set", "top_count")]
     print(f"   등록 {N:,}개: " + " | ".join(cells))
+
+print("8. 한국어 문항과 숫자 없는 문항 (E9-001, 영어 계산형 60 + 한국어 계산형 60 + 한국어 서술형 60을 함께 등록)")
+e9 = load("E9-001_results.json")
+print(f"   기준선: 영어 문항만 등록하고 E8 규칙을 쓰면 E8(등록 60개)과 같은 결과: {'예' if e9['baseline_R0_equals_E8_at_60'] else '아니오'}")
+print(f"   서술형 질문의 일치 기준: 선정용 문항에서 {e9["share_text_chosen"]}(으)로 정한 뒤 새 문항으로 확인 (최소 조각 {e9['min_pieces_text']}개)")
+names9 = {"EN": "영어 계산형", "KN": "한국어 계산형", "KT": "한국어 서술형(숫자 없음)"}
+for g, t in e9["validation_set"].items():
+    r, o = t["refused_rewritten"], t["refused_other"]
+    line = f"   {names9[g]}: 바꿔 쓴 질문 {t['n_rewritten']}건 거절 E8 규칙 {r['R0']:.1%}, 단순 확장 {r['R1']:.1%}, 제안 규칙 {r['R2']:.1%}"
+    line += f" | 연습문제 오인 {o['practice']['R0']}, {o['practice']['R1']}, {o['practice']['R2']} /{o['practice']['of']}"
+    if "stem_only" in o:
+        line += f" | 발문만 입력 시 거절 {o['stem_only']['R0']}, {o['stem_only']['R1']}, {o['stem_only']['R2']} /{o['stem_only']['of']}"
+        s = o["same_passage_other_question"]
+        line += f" | 같은 지문에 다른 발문·선지: 제안 규칙 {s['R2']}/{s['of']} 거절"
+    print(line)
+c = e9["encrypted_check_R2"]
+print(f"   암호화 조회로 다시 판정: {c['identical']}/{c['total']}건 같은 판정 (질문 {c['every']}건마다 1건)")
+
+print("9. 사진에서 읽은 글자에 오류가 있을 때 (E10-001, E9 제안 규칙)")
+e10 = load("E10-001_results.json")
+for p, e in e10["by_rate"].items():
+    r = e["copies_refused"]
+    print(f"   글자 오류율 {float(p):.0%}: 거절 영어 계산형 {r['EN']:.1%}, 한국어 계산형 {r['KN']:.1%}, 한국어 서술형 {r['KT']:.1%},"
+          f" 연습문제 오인 {sum(e['practice_refused'].values())}/{3 * e['practice_of']}")

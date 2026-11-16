@@ -1,0 +1,142 @@
+{
+ "experiment": "E10-001",
+ "seed": 20261121,
+ "share_text": 0.6,
+ "min_pieces_text": 20,
+ "rates": [
+  0.0,
+  0.01,
+  0.02,
+  0.05,
+  0.1,
+  0.15,
+  0.2
+ ],
+ "copies_per_item": 3,
+ "by_rate": {
+  "0.0": {
+   "copies_refused": {
+    "EN": 1.0,
+    "KN": 1.0,
+    "KT": 1.0
+   },
+   "missed_because_of_numbers_only": {
+    "EN": 0.0,
+    "KN": 0.0
+   },
+   "practice_refused": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "practice_of": 240
+  },
+  "0.01": {
+   "copies_refused": {
+    "EN": 0.9222,
+    "KN": 0.9278,
+    "KT": 1.0
+   },
+   "missed_because_of_numbers_only": {
+    "EN": 0.0778,
+    "KN": 0.0722
+   },
+   "practice_refused": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "practice_of": 240
+  },
+  "0.02": {
+   "copies_refused": {
+    "EN": 0.85,
+    "KN": 0.9,
+    "KT": 1.0
+   },
+   "missed_because_of_numbers_only": {
+    "EN": 0.15,
+    "KN": 0.1
+   },
+   "practice_refused": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "practice_of": 240
+  },
+  "0.05": {
+   "copies_refused": {
+    "EN": 0.7611,
+    "KN": 0.7,
+    "KT": 1.0
+   },
+   "missed_because_of_numbers_only": {
+    "EN": 0.2389,
+    "KN": 0.2944
+   },
+   "practice_refused": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "practice_of": 240
+  },
+  "0.1": {
+   "copies_refused": {
+    "EN": 0.5611,
+    "KN": 0.5,
+    "KT": 0.8722
+   },
+   "missed_because_of_numbers_only": {
+    "EN": 0.3778,
+    "KN": 0.3667
+   },
+   "practice_refused": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "practice_of": 240
+  },
+  "0.15": {
+   "copies_refused": {
+    "EN": 0.2444,
+    "KN": 0.2889,
+    "KT": 0.1
+   },
+   "missed_because_of_numbers_only": {
+    "EN": 0.4167,
+    "KN": 0.4222
+   },
+   "practice_refused": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "practice_of": 240
+  },
+  "0.2": {
+   "copies_refused": {
+    "EN": 0.1278,
+    "KN": 0.1222,
+    "KT": 0.0
+   },
+   "missed_because_of_numbers_only": {
+    "EN": 0.2222,
+    "KN": 0.25
+   },
+   "practice_refused": {
+    "EN": 0,
+    "KN": 0,
+    "KT": 0
+   },
+   "practice_of": 240
+  }
+ },
+ "baseline_undamaged_copies_all_refused": true,
+ "example": {
+  "original": "다음 글의 중심 내용으로 가장 적절한 것은? 당시 사람들은 개인의 선택에 의존하여 생활하였다. 이 시기에 개인의 선택에 대한 관심이 크게 늘어났",
+  "damaged_5_percent": "다음 글의 중심 내용으 가장 적절한 것은? 당시 사람들은 개인의 선택에 의존하여 생홞하였다. 이 시기에 개인의 선택에 대한 관심이 크게 어났"
+ }
+}

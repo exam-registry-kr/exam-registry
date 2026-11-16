@@ -2,7 +2,7 @@
 
 진행 중인 시험 문제에 AI가 답하지 않도록 하는 국가 단위 등록 체계의 설계 문서, 시뮬레이션 코드, 실험 결과입니다. 수능에서 시작하여 자격시험, 대학 시험, 학교 내신으로 단계적으로 확대하고, 국제 표준으로 제안하는 것을 목표로 합니다. 누구나 아래 절차에 따라 결과를 직접 확인하고 재현할 수 있습니다.
 
-이 제안은 2026년 11월 15일 국민신문고 일반제안으로 교육부에 제출하였습니다. 정책 제안서는 제출 당시의 판입니다. 이후 추가한 실험(상용 AI 판독 시험, 암호화 조회 검증, 등록 규모 확대 시험, 운영 과정 시연)은 이 저장소에서 확인할 수 있습니다.
+이 제안은 2026년 11월 15일 국민신문고 일반제안으로 교육부에 제출하였습니다. 정책 제안서는 제출 당시의 판입니다. 이후 추가한 실험(상용 AI 판독 시험, 암호화 조회 검증, 등록 규모 확대 시험, 한국어·숫자 없는 문항 시험, 글자 오류 시험, 운영 과정 시연)은 이 저장소에서 확인할 수 있습니다.
 
 문의: 김동휘(한양대학교 전기공학과), dongwhi01@hanyang.ac.kr
 
@@ -122,6 +122,8 @@ python summarize_results.py
 | 실제 시험지 적용 | 현재 판독 가능한 최저 인쇄 농도 50% | 아래 3.3 | 약 5분 |
 | 암호화된 문항 내용 조회 | 같은 판정 규칙의 일반 대조와 600건 모두 같은 판정. 질문 1건당 시험 기관 서버 처리 약 13ms, AI 서비스 측 전체 약 53ms (시연 구현, CPU 1개) | `python e7_oprf_lookup.py` | 약 1분 |
 | 등록 문항이 6만 개로 늘어날 때 | 바꿔 쓴 질문 탐지 99.4% 유지. 연습문제 오인은 E7 규칙에서 6천 개부터 1/240, 반복 숫자를 횟수까지 맞추는 보완 규칙에서 6만 개까지 0/240 | `python e8_registry_scale.py` | 약 30초 |
+| 한국어 문항, 숫자 없는 문항 | 기존 규칙은 숫자 없는 서술형 문항을 0% 거절. 제안 규칙은 바꿔 쓴 질문 480건을 100% 거절, 연습문제 오인 0/240, 발문만 입력한 질문 거절 0/10. 한국어 계산형은 99.7% (새 문항으로 확인한 값) | `python e9_korean_text_items.py` | 약 1분 |
+| 사진에서 읽은 글자에 오류가 있을 때 | 글자 오류율 5%에서 서술형 100%, 계산형 70~76% 거절. 계산형은 숫자 한 글자만 틀려도 놓침. 연습문제 오인은 모든 오류율에서 0/720 | `python e10_reading_errors.py` | 수 초 |
 
 ### 3.1 표식 판독
 
@@ -215,6 +217,56 @@ python e8_registry_scale.py
 
 E7 규칙은 질문의 숫자를 종류별로 한 번만 확인합니다. 그래서 "첫째항 68, 공비 68"처럼 같은 숫자가 두 번 나오는 연습문제가, 68이 한 번만 있는 다른 등록 문항과 일치한 것으로 판정되었습니다. 반복된 숫자는 등록 문항에도 같은 횟수만큼 있어야 일치로 보도록 보완하면 6만 개까지 오인이 없었고, 탐지율은 그대로였습니다. 운영 규칙에는 보완 규칙을 권장하며, 시연 코드(`demo.py`, `oprf_demo.py`, `operation_demo.py`)에는 보완 규칙을 적용했습니다. 시연의 판정 결과는 바뀌지 않았습니다. 판정 기준을 일치율이 가장 높은 문항 하나가 아니라 기준을 넘는 모든 문항으로 넓힌 경우도 비교했으며, 이때는 오인이 늘어(6만 개에서 3~5건) 채택하지 않았습니다. 결과 파일에는 오인된 연습문제와 일치한 등록 문항의 원문을 함께 기록했습니다.
 
+### 3.7 한국어 문항과 숫자 없는 문항 (E9)
+
+```
+python e9_korean_text_items.py
+```
+
+3.5와 3.6의 문항은 모두 영어로 된 계산 문제였습니다. 그리고 판정 규칙은 질문의 숫자가 등록 문항에 있어야 일치로 보았으므로, 국어나 사회처럼 숫자가 없는 문항은 문항 내용 조회로 보호할 수 없었습니다. 이 실험은 영어 계산형 60개, 한국어 계산형 60개, 숫자가 없는 한국어 서술형 60개(발문, 4~6문장의 지문, ①~⑤ 선지)를 함께 등록하고 세 가지 규칙을 비교했습니다.
+
+- E8 규칙: 3.6의 보완 규칙 그대로
+- 단순 확장: 숫자가 없는 질문은 조각 일치율 0.5 이상이면 거절
+- 제안 규칙: 시험 기관이 등록할 때 발문의 조각을 따로 표시합니다. 숫자가 없는 질문(선지 번호 1~5만 있는 경우 포함)은 발문 조각을 뺀 나머지 조각 중 20개 이상이 한 문항과 일치하고, 그 비율이 기준 이상일 때만 거절합니다. ①과 1)은 같은 글자로 봅니다. 1~5가 아닌 숫자가 있는 질문은 E8 규칙 그대로 판정합니다.
+
+서술형 질문의 일치율 기준은 한 벌의 문항에서 정한 뒤(연습문제 오인이 없는 가장 낮은 값, 0.6), 값을 고정하고 새로 만든 문항으로 확인했습니다. 아래는 새 문항의 결과입니다. 연습문제는 등록 문항과 같은 발문, 같은 어휘, 같은 문장 틀 30개에서 만들었습니다.
+
+| 문항 종류 | 질문 | E8 규칙 | 단순 확장 | 제안 규칙 |
+|---|---|---|---|---|
+| 한국어 서술형 | 바꿔 쓴 질문 480건 거절 | 0% | 100% | 100% |
+| | 연습문제 오인 | 0/240 | 0/240 (선정용 문항에서는 2/240) | 0/240 |
+| | 발문만 입력한 질문 거절 | 0/10 | 10/10 | 0/10 |
+| 한국어 계산형 | 바꿔 쓴 질문 300건 거절 | 100% | 100% | 99.7% |
+| | 연습문제 오인 | 0/240 | 0/240 | 0/240 |
+| 영어 계산형 | 바꿔 쓴 질문 360건 거절 | 99.4% | 100% | 99.4% |
+| | 연습문제 오인 | 0/240 | 0/240 | 0/240 |
+
+서술형의 바꿔 쓴 질문에는 문장 순서 변경, 일부만 복사, 유의어 치환, 선지 번호를 1)로 입력, 선지 생략, 지문만 입력이 포함됩니다. 단순 확장은 "다음 글의 주제로 가장 적절한 것은?" 같은 발문만 입력해도 거절하므로 쓸 수 없고, 제안 규칙은 발문 조각을 빼므로 거절하지 않습니다. 제안 규칙에서 거절되지 않은 3건은 "+ 3, find the value of f(2)."처럼 조각이 20개에 못 미치고 5 이하의 숫자만 남은 짧은 인용입니다. 등록 문항만 영어 60개로 두고 E8 규칙을 쓰면 3.6의 등록 60개 결과와 같은 값이 나오는 것을 먼저 확인했습니다.
+
+제안 규칙은 조각 값의 집합 연산만 쓰므로 암호화된 조각 값으로도 같은 판정을 할 수 있습니다. 질문 5건마다 1건씩 386건을 3.5의 암호화 조회로 다시 판정했고, 모두 같은 판정이 나왔습니다.
+
+지문은 같고 발문과 선지만 다른 질문은 60건 중 59건이 거절되었습니다. 지문 자체가 시험 내용이므로 시험 시간 동안에는 같은 지문을 인용한 다른 질문도 거절된다는 뜻입니다.
+
+### 3.8 사진에서 읽은 글자에 오류가 있을 때 (E10)
+
+```
+python e10_reading_errors.py
+```
+
+AI 서비스가 사진을 받으면 글자를 먼저 읽고 그 글자로 조회합니다. 읽은 글자에 오류가 있을 때를 보기 위해, 3.7의 등록 문항을 그대로 옮긴 질문의 글자를 일정 비율로 바꾸거나 빠뜨리거나 겹쳐 쓴 뒤 제안 규칙으로 판정했습니다(문항마다 3회, 연습문제 720건은 1회).
+
+| 글자 오류율 | 영어 계산형 거절 | 한국어 계산형 거절 | 한국어 서술형 거절 | 연습문제 오인 |
+|---|---|---|---|---|
+| 0% | 100% | 100% | 100% | 0/720 |
+| 1% | 92.2% | 92.8% | 100% | 0/720 |
+| 2% | 85.0% | 90.0% | 100% | 0/720 |
+| 5% | 76.1% | 70.0% | 100% | 0/720 |
+| 10% | 56.1% | 50.0% | 87.2% | 0/720 |
+| 15% | 24.4% | 28.9% | 10.0% | 0/720 |
+| 20% | 12.8% | 12.2% | 0% | 0/720 |
+
+서술형 문항은 글자 오류율 5%까지 모두 거절되었습니다. 계산형 문항은 숫자 한 글자만 잘못 읽어도 숫자 검사를 통과하지 못해, 오류율 1%에서도 약 7%를 놓쳤습니다. 숫자 검사를 느슨하게 하면 숫자만 다른 연습문제를 막게 되므로(3.6) 규칙은 바꾸지 않았습니다. 사진으로 들어온 계산형 문항은 글자 읽기에 의존하지 않는 시험지 표식(3.1~3.3)이 함께 있어야 하는 이유입니다. 오류는 거절을 줄이는 방향으로만 작용했고, 연습문제를 잘못 막은 경우는 없었습니다.
+
 ## 4. 결과를 읽을 때 유의할 점
 
 - 모든 결과는 시뮬레이션입니다. 실제 카메라 촬영과 실제 인쇄물 측정은 시범 운영 단계에서 수행할 과제입니다.
@@ -222,6 +274,9 @@ E7 규칙은 질문의 숫자를 종류별로 한 번만 확인합니다. 그래
 - 실험용 시험지에서는 낮은 인쇄 농도에서도 표식이 판독되었지만, 글자와 그림이 많은 실제 시험지에서는 현재 50%가 최저 농도입니다. 목표는 육안으로 거의 구분되지 않는 농도(`figures/sample_target_faint.png`)이며, 이를 위한 추가 연구를 진행할 예정입니다.
 - 문항 내용 조회의 정확도는 실험용으로 만든 문항으로만 평가했습니다. 문항 조각 대조 실험(E3)과 3.5의 "바꿔 쓴 질문"은 띄어쓰기, 숫자 표기, 문장 순서, 일부 발췌, 단어 치환을 자동으로 적용한 것입니다. 문장을 완전히 바꿔 글로 입력한 질문은 탐지가 제한적입니다.
 - E8의 문항은 영어 문장 유형 12개로 만든 실험용 문항입니다. 실제 시험 문항과 실제 학습 질문의 분포에서는 다시 확인해야 합니다. E8의 대조 시간(등록 6만 개에서 질문 1건당 약 40ms)은 단순 구현으로 잰 값이며 등록 문항 수에 비례해 늘어납니다.
+- E9의 숫자 없는 문항 규칙은 실험 코드에서 검증한 제안이며, 시연 코드(`demo.py`, `operation_demo.py`)에는 아직 반영하지 않았습니다. 시연의 문항은 모두 숫자가 있는 문항입니다. 서술형 문항은 문장 틀로 만든 실험용 문항이고 실제 지문과 실제 학습 질문으로는 다시 확인해야 합니다. 일치율 기준 0.6은 이 실험용 문항에서 정한 값입니다. 최소 조각 수 20개는 이 실험에서는 결과에 영향을 주지 않았습니다(0~30개에서 같은 결과).
+- E9에서 숫자가 빠진 채 20조각 이상이 등록 문항과 그대로 일치하는 인용은 거절됩니다. 문장 틀이 같은 연습문제에서 숫자 없는 부분만 입력한 경우가 이에 해당합니다. 뜻은 같고 표현을 전부 바꾼 질문은 조각 대조로 잡을 수 없습니다.
+- E10의 글자 오류는 글자마다 독립으로 생기는 단순한 모형입니다. 실제 서비스가 사진을 읽을 때의 오류율과 오류의 모양은 재지 않았습니다.
 - 암호화 조회의 처리 시간은 시연 구현을 CPU 1개로 측정한 값입니다. 실제 운영 규모의 처리량은 공용 조회 서버를 구현한 뒤 측정해야 합니다.
 - 상용 AI 판독 시험은 한 모델(GPT-Astra), 사진 36장의 결과입니다. 1차 질문의 원문은 보관하지 못했습니다(`results/E5-003_prompts.md`). 모델이 바뀌면 다시 확인해야 합니다.
 - 라이브러리 버전이 크게 다르면 영상 처리 결과가 소수의 시행에서 달라질 수 있습니다. 시험한 버전은 `requirements.txt`에 적었습니다.
@@ -240,10 +295,12 @@ E7 규칙은 질문의 숫자를 종류별로 한 번만 확인합니다. 그래
 | `code/oprf_demo.py` | 가린 상태의 문항 내용 조회 원리 |
 | `code/e7_oprf_lookup.py` | 암호화 조회와 일반 대조의 판정 비교, 처리 시간 |
 | `code/e8_registry_scale.py` | 등록 문항 수를 늘렸을 때의 탐지와 오인 |
+| `code/e9_korean_text_items.py` | 한국어 문항과 숫자 없는 문항의 판정 규칙 비교 |
+| `code/e10_reading_errors.py` | 읽은 글자에 오류가 있을 때의 판정 |
 | `code/e5_legibility.py`, `e5_enh.py`, `e5_collect.py`, `e5_fp.py`, `e5_fp2.py` | 문장 판독과 표식 판독 비교, 최종 판독기, 일반 문서 오인 검사 |
 | `code/e5_stage2.py`, `e5_stage2_score.py` | 상용 AI 판독 시험용 사진 생성과 채점 |
 | `code/e6_make_sample.py`, `e6_check_decode.py` | 실제 시험지 적용 |
-| `results/` | 실험 원자료 (파일명 앞의 E1~E8은 위 실험 순서) |
+| `results/` | 실험 원자료 (파일명 앞의 E1~E10은 위 실험 순서) |
 | `figures/` | 결과 그래프, 실험용 시험지 견본 |
 | `docs/` | 정책 제안서, 기술 명세 |
 
@@ -257,7 +314,7 @@ Apache License 2.0
 
 ## Summary (English)
 
-Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text, which is the core, and a printed yellow marker that carries the exam ID as a supplement. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). In E8 the registry was grown to 60,000 items drawn from the same templates as the practice problems; detection of rewritten questions stayed at 99.4%, and once repeated numbers are counted, no practice problem was refused. The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT, model shown as GPT-Astra) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
+Design documents, simulation code and results for an exam registry that lets cooperating AI services decline to answer questions from exams in progress. Accredited exam authorities register signed exam time windows and item hashes in a public append-only log. During a window, a service checks inputs with two keys: an oblivious content lookup (OPRF, as in RFC 9497) in which neither side sees the other's text, which is the core, and a printed yellow marker that carries the exam ID as a supplement. A match only makes the service decline to answer; by default nobody is identified or reported. In E7 the encrypted lookup reached the same decision as a plaintext lookup with the same rule on all 600 test queries (demonstration implementation, not RFC 9497). In E8 the registry was grown to 60,000 items drawn from the same templates as the practice problems; detection of rewritten questions stayed at 99.4%, and once repeated numbers are counted, no practice problem was refused. E9 adds Korean items and items without numbers: the earlier rule refused none of the rewritten text-only questions, while a rule that sets aside stem phrases marked by the authority refused all 480 with no practice problem refused (parameters chosen on one item set, tested on another). E10 shows the number check is sensitive to reading errors in photos (about 7% of numeric items missed at a 1% character error rate), which is why the printed marker is kept as a second key. The proposal was submitted to the Korean Ministry of Education through the national e-People portal on 15 November 2026. Restrictions expire automatically. A commercial vision AI (ChatGPT, model shown as GPT-Astra) was also given 36 photos: every photo it could solve also had a readable marker, and it solved none of the 22 photos where the final decoder failed (E5-003). The same format extends from national exams to university, certification and online exams.
 
 Quick start: `pip install -r requirements.txt`, then `cd code && python demo.py` (about five minutes). `python summarize_results.py` prints every number quoted in the documents from the raw results. All results come from print-and-capture simulation; the final marker decoder was revised after inspecting the E5 results, and the pre-revision numbers are also published.
 
