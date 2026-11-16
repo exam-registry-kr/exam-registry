@@ -13,6 +13,9 @@ Steps
                   and the window is open. An unmarked page is checked as a control.
   3. Content    : the question text is checked against the registered items by an
                   oblivious lookup (see oprf_demo.py). Neither side sees the other's text.
+  4. Rule R5    : the rule adopted after E16 and E19, on one item, next to the
+                  rule it replaced (R3): a number or unrelated sentences put in
+                  front of the item, a practice problem, a full rewording.
 
 Images are written to demo_out/ so the result can be checked by eye.
 """
@@ -96,6 +99,30 @@ def main():
         hit = score >= 0.5 and nums_ok
         print(L(f"    {label}: 일치율 {score:4.0%}, 숫자 일치 {'예' if nums_ok else '아니오'} -> {'거절' if hit else '정상 답변'}",
                 f"    {label}: pieces matched {score:4.0%}, numbers match {'yes' if nums_ok else 'no'} -> {'refused' if hit else 'normal answer'}"))
+
+    # 4. the adopted rule (R5) -----------------------------------------------------
+    # [3] shows the principle with the first rule (share of pieces + number check).
+    # The rule adopted after E16 and E19 is R5; R3 is the rule it replaced.
+    import e9_korean_text_items as E9
+    print(L("[4] 채택한 판정 규칙 R5 (3.18). 괄호 안은 이전 규칙 R3",
+            "[4] The adopted rule R5 (3.18). The earlier rule R3 in brackets"))
+    item = "기차가 43시간 동안 150km를 달렸다. 같은 속력으로 16시간 동안 달리면 몇 km를 가는가?"
+    reg = E9.Registry(items + [item], [""] * (len(items) + 1))
+    filler = "오늘은 날씨가 맑아서 강가를 따라 오래 걸었다. 저녁에는 동생과 함께 시장에 들러 반찬거리를 샀다. 주말에는 미뤄 둔 방 정리를 끝낼 생각이다. "
+    cases = [(L("등록 문항 그대로", "Registered item as printed"), item),
+             (L("앞에 \"문제 23번\"을 붙임", "\"문제 23번\" (question 23) put in front"), "문제 23번 " + item),
+             (L("무관한 문장 3개를 앞에 붙임", "Three unrelated sentences put in front"), filler + item),
+             (L("숫자만 다른 연습문제", "Practice problem, other numbers"),
+              "기차가 59시간 동안 319km를 달렸다. 같은 속력으로 16시간 동안 달리면 몇 km를 가는가?"),
+             (L("문장을 전부 바꿔 씀 (막지 못하는 경우)", "Every sentence reworded (not caught)"),
+              "어떤 열차가 150km를 가는 데 43시간이 걸렸다. 빠르기가 변하지 않는다면 16시간에는 얼마나 멀리 갈까?")]
+    target = reg.g[-1]
+    v = lambda hit: L("거절" if hit else "정상 답변", "refused" if hit else "normal answer")
+    for label, q in cases:
+        qp = E9.pieces(E9.nk(q))[0]
+        r5, r3 = bool(reg.r5(q)[0]), bool(reg.r3(q)[0])
+        print(L(f"    {label}: 질문 조각 {len(qp)}개 중 {len(qp & target)}개 일치 -> {v(r5)} (R3: {v(r3)})",
+                f"    {label}: {len(qp & target)} of {len(qp)} pieces match -> {v(r5)} (R3: {v(r3)})"))
     print(L(f"\n사진은 {a.out}/ 폴더에 저장되었습니다.", f"\nPhotos were saved to {a.out}/."))
 
 

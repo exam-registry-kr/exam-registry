@@ -17,6 +17,20 @@ Background terms
 - KICE: Korea Institute for Curriculum and Evaluation (한국교육과정평가원), which sets the CSAT and its mock exams.
 - School exams (내신): midterm and final exams set by each school; they count toward university admission.
 
+## At a glance
+
+As of 16 November 2026. Every figure comes from computer simulation and test items made for the experiments; each line below can be checked in the section named and in the raw results under `results/`.
+
+| | |
+|---|---|
+| Rule adopted | R5 (definition and values in 3.18). It closes a gap in the rule of the submitted proposal, found by the author after submission (3.14). |
+| Checked | Questions that copy an item as printed, or change its spacing, sentence order or some words, are refused at 99.4 to 100% (3.7). An item with a number or unrelated sentences put in front is refused at 100% (3.18), and an item split across messages at 100% when the whole conversation is judged (3.10). None of 720 practice problems that differ only in their numbers was refused (3.18). The authority never sees the question and the AI service never sees the item text, and the decision is the same (3.5). |
+| Not caught | A short quote of 20 to 60% of an item is refused only 77.3% of the time. A question with every sentence reworded (2.8% refused), a translated question (0%), a filler word after every two words (5%). Services that do not cooperate, self-installed AI, a person solving for the examinee. |
+| Cost | About 130 pieces per question and one elliptic-curve multiplication per piece (3.11). One of 100 conversations of 32 practice problems in a row was wrongly refused (3.18). A conversation that holds a whole item is refused until the exam ends (3.17). |
+| Not measured yet | Real cameras and real prints, real textbooks and real study questions, a neural sentence embedding as a baseline, rewording by an AI, the throughput of an optimized implementation. The full list is in section 4. |
+
+To run it yourself in five minutes go to 2.2; the summary of all experiments is the first table of section 3; the limits are in section 4.
+
 ## 1. Overview
 
 AI services today cannot tell which exam is being held where and when, so they have no way to respond to cheating during exams. The exam registry gives them that information. A school zone speed limit applies only to the roads around a school and leaves every other road alone; in the same way, the registry acts only on registered exam items, and only while the exam is running.
@@ -67,7 +81,7 @@ A Korean font is needed for the simulated exam pages. Windows (Malgun Gothic), m
 python demo.py --en
 ```
 
-Runs exam registration and signature checking, decoding of the marker from a partial photo of a marked exam page, and the content lookup. Output:
+Runs exam registration and signature checking, decoding of the marker from a partial photo of a marked exam page, the content lookup and the adopted rule (about one minute). Output:
 
 ```
 [1] Exam registration
@@ -80,7 +94,15 @@ Runs exam registration and signature checking, decoding of the marker from a par
     Spacing and wording changed: pieces matched  91%, numbers match yes -> refused
     Same type, different numbers: pieces matched  40%, numbers match no -> normal answer
     Unrelated question: pieces matched   0%, numbers match no -> normal answer
+[4] The adopted rule R5 (3.18). The earlier rule R3 in brackets
+    Registered item as printed: 36 of 36 pieces match -> refused (R3: refused)
+    "문제 23번" (question 23) put in front: 36 of 41 pieces match -> refused (R3: normal answer)
+    Three unrelated sentences put in front: 36 of 93 pieces match -> refused (R3: normal answer)
+    Practice problem, other numbers: 25 of 36 pieces match -> normal answer (R3: normal answer)
+    Every sentence reworded (not caught): 7 of 43 pieces match -> normal answer (R3: normal answer)
 ```
+
+Step [3] shows the principle of the lookup with the first rule (share of pieces and the number check). Step [4] shows the adopted rule R5 on one Korean item ("A train ran 150 km in 43 hours. How many km does it run in 16 hours at the same speed?"). Its second and third lines are the gap found after submission; its last line is a case that is still not caught.
 
 The marked page (`page_marked.png`) and simulated photos (`photo_marked.png`, `photo_unmarked.png`) are saved in `demo_out/`. You can change the marker strength and the photographed area:
 
@@ -129,11 +151,11 @@ All experiments are computer simulations that model printing and photographing n
 | Real exam page | Lowest print strength currently decodable: 50% | see 3.3 | about 5 min |
 | Encrypted content lookup (RFC 9497) | Same decision as plain matching with the same rule on all 600 queries. Per question about 37 ms at the authority and about 174 ms in total at the service (this repository's Python implementation, one CPU) | `python e7_oprf_lookup.py` | about 1 min |
 | Registry grown to 60,000 items | Detection of rewritten questions stays at 99.4%. Practice problems refused: 1/240 from 6,000 items with the E7 rule, 0/240 up to 60,000 with a revised rule that counts repeated numbers | `python e8_registry_scale.py` | about 30 s |
-| Korean items, items without numbers | The earlier rule refused 0% of number-free text items. The proposed rule (R2), E14's rule (R3) and the final rule (R5) all refused 100% of 480 rewritten questions, 0/240 practice problems, 0/10 stems typed alone. Korean word problems: 99.7% (on new items) | `python e9_korean_text_items.py` | about 1 min |
+| Korean items, items without numbers | The earlier rule refused 0% of number-free text items. The proposed rule (R2), E14's rule (R3) and the final rule (R5) all refused 100% of 480 rewritten questions, 0/240 practice problems, 0/10 stems typed alone. Korean word problems: 99.7% (on new items) | `python e9_korean_text_items.py` | about 3 min |
 | Reading errors in photos | At a 5% character error rate, 100% of text items and 70 to 76% of word problems refused (same under R2, R3 and R5). A single misread digit lets a word problem through. 0/720 practice problems refused at every error rate | `python e10_reading_errors.py` | seconds |
 | Can an insider at an AI service learn the items before the exam | With open sets, an insider who knows how the items were generated rebuilds all 120 Korean items from 18,605 guessed pieces (about 140 ordinary questions). With sets distributed locked and the key released at the start: 0 matches before the start | `python e11_insider_guessing.py` | about 1 min |
-| Questions split across messages | Verbatim splits are all refused. With numbers replaced by letters and the values sent separately, judging each message alone refuses 0 to 58% of Korean word problems; judging the whole conversation and putting values such as "A=168" back refuses 97 to 100% under R2 and 100% under R3. 0 of 1,200 study conversations refused | `python e12_split_questions.py` | seconds |
-| Authority load, test vectors for integration | One CPU core serves about 15 Korean questions per second with this repository's RFC 9497 implementation, about 123 counting the elliptic-curve multiplication alone; batching does not lower the cost per piece. RFC 9497 piece values and 11 decisions of the final rule (R5) under a public test key are published | `python e13_load_and_vectors.py` | about 20 s |
+| Questions split across messages | Verbatim splits are all refused. With numbers replaced by letters and the values sent separately, judging each message alone refuses 0 to 58% of Korean word problems; judging the whole conversation and putting values such as "A=168" back refuses 97 to 100% under R2 and 100% under R3 and R5. 0 of 1,200 study conversations refused | `python e12_split_questions.py` | about 30 s |
+| Authority load, test vectors for integration | One CPU core serves about 15 Korean questions per second with this repository's RFC 9497 implementation, about 123 counting the elliptic-curve multiplication alone; batching does not lower the cost per piece. RFC 9497 piece values and 11 decisions of the final rule (R5) under a public test key are published | `python e13_load_and_vectors.py` | about 1 min |
 | Why these piece lengths and thresholds | 2-character pieces refuse whole practice problems and are ruled out; 4 is the longest length that still refuses every text item at 5% reading errors. Share 0.5 for word problems is the highest value that loses no detection. R2 refuses 76 to 102 of every 1,000 study questions that quote part of a practice problem; replaced by R3, which requires 60% of the matched item's pieces (at most 60): 0.8 to 8.6 per 1,000 over four sets | `python e14_sensitivity.py` | about 1 min |
 | Conformance to international standards | Encrypted lookup: RFC 9497 (with RFC 9380) official vectors, hash_to_curve 5/5, OPRF 2/2, key derivation matches. Log moved to the RFC 9162 Merkle tree: all 86 inclusion and 98 consistency reference cases (172 must-reject) decided as the reference implementation does | see 3.13 | seconds |
 | Comparison with simpler methods, cheap ways around (E16) | An exact hash refuses 16.7% of the earlier rewritten questions, a keyword list 33.1%, vector similarity 40.4%, R3 90%. **R3 refuses 0% when one number is put in front of the item and 0 to 24% when unrelated sentences are added in front or in between.** Rule R5 was designed to close this, its values were chosen again in E19, and it was adopted. Fully reworded or translated questions get past every method | `python e16_baselines.py` | about 4 minutes |
@@ -265,7 +287,7 @@ The proposed rule uses only set operations on piece values, so it can run on enc
 
 Questions with the same passage but a different stem and different choices were refused in 59 of 60 cases. The passage itself is exam content, so during the exam other questions quoting the same passage are refused too.
 
-Later, E14 (3.12) tested more questions that quote part of a practice problem and found that the proposed rule refused 76 to 102 of every 1,000 such study questions. Rule R3 therefore replaces the fixed minimum of 20 pieces for questions without numbers with "60% of the matched item's own pieces, at most 60". On the new items of the table above R3 gave the same values as the proposed rule (rewritten questions, practice problems, stems, same passage 59/60); the result file records an R3 column as well.
+Later, E14 (3.12) tested more questions that quote part of a practice problem and found that the proposed rule refused 76 to 102 of every 1,000 such study questions. Rule R3 therefore replaces the fixed minimum of 20 pieces for questions without numbers with "60% of the matched item's own pieces, at most 60". On the new items of the table above R3 gave the same values as the proposed rule (rewritten questions, practice problems, stems, same passage 59/60); the result file records an R3 column as well. The rule adopted now is R5, which closes a gap in R3 (3.18); the values of the table above are the same under R5.
 
 ### 3.8 Reading errors in photos (E10)
 
@@ -285,7 +307,7 @@ When a service receives a photo it first reads the text and then looks it up. To
 | 15% | 24.4% | 28.9% | 10.0% | 0/720 |
 | 20% | 12.8% | 12.2% | 0% | 0/720 |
 
-Text items were all refused up to a 5% error rate. A word problem fails the number check if a single digit is misread, so about 7% were missed even at 1%. Loosening the number check would refuse practice problems that differ only in their numbers (3.6), so the rule was not changed. This is why word problems arriving as photos need the exam page marker (3.1 to 3.3), which does not depend on reading the text. Errors only ever reduced refusals; no practice problem was refused. The final rule (R3) gave the same results as the table at every error rate on the same damaged copies.
+Text items were all refused up to a 5% error rate. A word problem fails the number check if a single digit is misread, so about 7% were missed even at 1%. Loosening the number check would refuse practice problems that differ only in their numbers (3.6), so the rule was not changed. This is why word problems arriving as photos need the exam page marker (3.1 to 3.3), which does not depend on reading the text. Errors only ever reduced refusals; no practice problem was refused. R3 and the adopted rule R5 gave the same results as the table at every error rate on the same damaged copies.
 
 ### 3.9 Guessing by an insider at an AI service (E11)
 
@@ -336,6 +358,8 @@ python e13_load_and_vectors.py --check
 ```
 
 The authority's only work per question is one elliptic-curve multiplication per piece (RFC 9497 BlindEvaluate). Pieces were processed on one CPU core of this machine in batches of 1, 70, 1,000 and 10,000. This repository's RFC 9497 implementation took about 513 to 541 microseconds per piece; the elliptic-curve multiplication inside it, timed alone, about 58 to 69 microseconds. Both hardly depend on the batch size. The difference is the point decompression and encoding done in Python. Batching does not lower the server cost, which is proportional to the number of pieces. At the median Korean question (132 pieces) one core serves about 15 questions per second with this implementation and about 123 at the cost of the multiplication alone. For an assumed 1,000 Korean questions per second this implementation would need about 68 cores, an optimized one about 9. On the service side, blinding and unblinding one Korean question took about 374 ms with this implementation.
+
+Measured on one core (one thread) of an Intel Xeon 2.10 GHz CPU in a cloud virtual machine, with Python 3.13 and `cryptography` 50 (OpenSSL 4.0). The figures above are the first run (`results/E13-001_results.json`). A second run in the same environment (`results/E13-002_results.json`, which records the environment) gave 529 to 551 microseconds per piece, 57 to 68 for the multiplication alone, and 70 and 8 cores. The figures move by a few percent from run to run and will differ on another CPU. Batched multiplication on a GPU or an FPGA, and scaling across several cores, were not measured.
 
 So that a service can check its own implementation, RFC 9497 outputs under a test key derived with RFC 9497 DeriveKeyPair from a published seed (never used for a real exam) are in `results/E13-test_vectors.json`: the pieces and number tokens of 3 items (2 word problems, 1 text item), the encrypted value of each piece, the stem pieces, and the pieces and final-rule (R5) decisions of 11 queries (item as printed, spaces removed, practice problem with different numbers, repeated number, text item as printed, stem alone, choice marks typed as 1), a word problem and a text item with "문제 23번" in front, an item with unrelated sentences in front, a practice problem with "문제 23번" in front). The R3 decision is recorded as well, so the queries on which the two rules differ can be seen. `--check` recomputes the values and confirms they are unchanged.
 
@@ -563,14 +587,14 @@ The rule was corrected twice during this work; the values were not touched. Firs
 - On the test page the marker was decoded even at low print strength, but on a real exam page dense with text and figures the lowest decodable strength is currently 50%. The goal is a strength barely visible to the eye (`figures/sample_target_faint.png`), which needs further research.
 - The accuracy of the content lookup was evaluated only on test items made for the experiments. The "rewritten questions" of E3 and 3.5 apply automatic changes to spacing, number formatting, sentence order, partial excerpts and word substitution. Questions completely reworded by hand are detected only to a limited extent.
 - The E8 items are test items built from 12 English sentence templates. They should be checked again on real exam items and real study questions. The matching time in E8 (about 40 ms per question at 60,000 items) was measured with a simple implementation and grows with the number of registered items.
-- The number-free rule of E9 is a proposal verified in the experiment code and is not yet used in the demonstration code (`demo.py`, `operation_demo.py`), whose items all contain numbers. The text items are test items built from sentence frames and should be checked again on real passages and real study questions. The share of 0.6 was chosen on these test items. The minimum of 20 pieces made no difference for E9's questions, but it mattered a lot for questions that quote part of a practice problem (3.12).
+- The rule for items without numbers was verified in the experiment code. In the demonstrations, step [4] of `demo.py` shows the adopted rule R5 on one word problem; step [3] of `demo.py` and `operation_demo.py` keep the first rule, with items that all contain numbers. The text items are test items built from sentence frames and should be checked again on real passages and real study questions. The share of 0.6 was chosen on these test items. The minimum of 20 pieces made no difference for E9's questions, but it mattered a lot for questions that quote part of a practice problem (3.12).
 - Under E9, a quote of 20 or more pieces that matches a registered item exactly is refused even without its numbers; a practice problem with the same sentence frame typed without its numbers is one such case. A question with the same meaning in entirely different words cannot be caught by piece matching.
 - The reading errors of E10 come from a simple model in which each character fails independently. The error rate and error patterns of real services reading photos were not measured.
 - The locked sets of E11 prevent leaks before the exam starts but not guessing by an insider during the exam. How the key is delivered reliably at the start (for example published in the log under a signature) is left to the operational design. The guessing cost for a realistic attacker who does not know the item templates was not measured.
 - The value restoration of E12 handles only the "A=168" form. Numbers written in Korean words, or values described in words such as "the first value is 168", remain a limit, like synonyms. Judging the whole conversation requires the service to hold the conversation briefly during the exam.
 - In E14 the practice passages were built from the same sentence frames as the registered items, so the refusal rate for parts of practice problems may be higher than in real use. It should be measured again on real textbooks and real exam passages. R3 is recorded in the result files of E9, E10 and E12.
 - The throughput of E13 is that of this repository's Python implementation, and of the elliptic-curve multiplication (OpenSSL) inside it timed alone. The throughput of an optimized RFC 9497 library was not measured. During exam windows every text question sent to a cooperating service is subject to lookup, so actual question volumes in weeks crowded with school exams should be checked together with the services. Whether to answer or refuse when the authority's server is down must also be decided in the operational design.
-- E16 found a gap in the rule used until then (R3), and the rule was changed to R5 (3.14, 3.18). The specification and the test vectors use R5; the demonstration code (`demo.py`, `operation_demo.py`) still uses the E7 rule, with items that all contain numbers. R5 wrongly refused 1 of 100 conversations of 32 practice problems, and it keeps refusing a conversation that holds most of an item until the exam ends (3.17). A filler word after every two words, full rewording and translation still get past R5. Breaking both sides of the number test at once, by leaving one number out and adding another, was not measured.- The "fully reworded" questions of E16 come from hand-written paraphrase templates; rewording by an AI was not measured. The reduced vectors are not a neural sentence embedding. How many reworded questions a neural embedding catches, and how many practice problems it wrongly refuses, was not measured.
+- E16 found a gap in the rule used until then (R3), and the rule was changed to R5 (3.14, 3.18). The specification, the test vectors and step [4] of `demo.py` use R5; step [3] of `demo.py` and `operation_demo.py` still use the E7 rule, with items that all contain numbers. R5 wrongly refused 1 of 100 conversations of 32 practice problems, and it keeps refusing a conversation that holds most of an item until the exam ends (3.17). A filler word after every two words, full rewording and translation still get past R5. Breaking both sides of the number test at once, by leaving one number out and adding another, was not measured.- The "fully reworded" questions of E16 come from hand-written paraphrase templates; rewording by an AI was not measured. The reduced vectors are not a neural sentence embedding. How many reworded questions a neural embedding catches, and how many practice problems it wrongly refuses, was not measured.
 - E15 assumes an observer who sees the element count only. An observer who also uses the gaps between requests, or several requests of one user, was not measured. The stream of E17 (30% exam questions, every item equally often) is an assumption.
 - The timing of the encrypted lookup was measured on this repository's implementation with one CPU. Throughput at operating scale has to be measured after the shared lookup server is built. Conformance (3.13) was checked with official test vectors and reference test data; no third-party audit or interoperability test has been done.
 - The commercial AI test covers one model (GPT-Astra) and 36 photos. The exact text of the first-round prompt was not kept (`results/E5-003_prompts.md`). It should be checked again when the model changes.
@@ -581,7 +605,7 @@ The rule was corrected twice during this work; the values were not touched. Firs
 
 | Path | Contents |
 |---|---|
-| `code/demo.py` | Five-minute demo (`--en` for English output) |
+| `code/demo.py` | One-minute demo: registration, marker, content lookup, adopted rule R5 (`--en` for English output) |
 | `code/operation_demo.py` | Operation walkthrough by role (Korean output) |
 | `code/summarize_results.py` | Prints every number quoted in the documents (`--en` for English output) |
 | `code/e1_sim.py`, `e1_merge.py`, `e1_plot.py` | Marker printing, capture and decoding simulation |
@@ -598,16 +622,16 @@ The rule was corrected twice during this work; the values were not touched. Firs
 | `code/e14_sensitivity.py` | Why these piece lengths and thresholds, and what each value costs |
 | `code/e15_lookup_metadata.py` | What the lookup server can learn from request sizes, and the cost of hiding it |
 | `code/e16_baselines.py` | Comparison with exact hash, keywords and vectors; cheap ways around; first design of R5 |
-| `code/e19_adopt_r5.py` | R5's values chosen again and checked on new items |
 | `code/e17_outage.py` | What still works when the lookup server is down |
 | `code/e18_refusal_abuse.py` | Planting exam text to make another person's question be refused |
+| `code/e19_adopt_r5.py` | R5's values chosen again and checked on new items |
 | `code/rfc9497.py` | RFC 9497 OPRF(P-256, SHA-256) and RFC 9380 hash_to_curve, with the official vector check |
 | `code/transparency_log.py` | RFC 9162 Merkle tree log (inclusion and consistency proofs), with the reference data check |
 | `code/check_standards.sh` | Fetches the official vectors and reference data at fixed commits and checks both modules |
 | `code/e5_legibility.py`, `e5_enh.py`, `e5_collect.py`, `e5_fp.py`, `e5_fp2.py` | Text reading vs marker decoding, final decoder, false matches on ordinary documents |
 | `code/e5_stage2.py`, `e5_stage2_score.py` | Photos for the commercial AI test and scoring |
 | `code/e6_make_sample.py`, `e6_check_decode.py` | Real exam page |
-| `results/` | Raw results (E1 to E19 follow the order above) |
+| `results/` | Raw results (E1 to E19 are experiment numbers; E4 was never used) |
 | `figures/` | Result figures, sample test pages |
 | `docs/` | Policy proposal and specification (Korean), operation walkthrough (Korean and English) |
 

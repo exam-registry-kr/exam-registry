@@ -136,6 +136,21 @@ def vectors():
     return out
 
 
+def environment():
+    """Where the load figures were measured. They change with the CPU and the library versions."""
+    import platform, cryptography
+    from cryptography.hazmat.backends.openssl import backend
+    cpu = platform.processor() or platform.machine()
+    try:
+        for line in open("/proc/cpuinfo"):
+            if line.startswith("model name"):
+                cpu = line.split(":", 1)[1].strip(); break
+    except OSError:
+        pass
+    return dict(cpu=cpu, python=platform.python_version(), cryptography=cryptography.__version__,
+                openssl=backend.openssl_version_text(), threads_used=1)
+
+
 def main():
     if "--check" in sys.argv:
         old, new = json.load(open(VECTOR_PATH)), vectors()
@@ -154,7 +169,9 @@ def main():
     json.dump(vec, open(VECTOR_PATH, "w"), indent=1, ensure_ascii=False)
     print("test vectors:", len(vec["items"]), "items,", len(vec["queries"]), "queries ->", VECTOR_PATH,
           "decisions:", [q["refuse"] for q in vec["queries"]])
-    json.dump(dict(experiment="E13-001", load=load, vectors_file="results/E13-test_vectors.json"),
+    env = environment()
+    print("environment:", env)
+    json.dump(dict(experiment=out_path.split("/")[-1].split("_")[0], environment=env, load=load, vectors_file="results/E13-test_vectors.json"),
               open(out_path, "w"), indent=1, ensure_ascii=False)
 
 
