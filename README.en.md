@@ -4,7 +4,7 @@
 
 This repository holds the design documents, simulation code and experimental results for a national exam registry that lets cooperating AI services decline to answer questions from exams that are in progress. The plan starts with Korea's national college entrance exam (CSAT), extends step by step to certification exams, university exams and school exams, and is meant to be proposed as an international standard. Anyone can check and reproduce every result by following the steps below.
 
-The proposal was submitted to the Korean Ministry of Education on 15 November 2026 as a public proposal through e-People (국민신문고), the government's national petition and proposal portal. The policy proposal PDF is the version that was submitted. Experiments added after submission (a commercial AI reading test, encrypted lookup checks, registry scale, Korean and number-free items, reading errors, insider guessing, split questions, authority load with test vectors, and the operation walkthrough) are published here.
+The proposal was submitted to the Korean Ministry of Education on 15 November 2026 as a public proposal through e-People (국민신문고), the government's national petition and proposal portal. The policy proposal and the design specification were updated on 16 November 2026 to include the experiments added after submission and the move to published standards (encrypted lookup on RFC 9497, public log on RFC 9162, decision rule R3). The versions as submitted are in `docs/` at commit 25b230f.
 
 Contact: Dongwhi Kim (Department of Electrical Engineering, Hanyang University), dongwhi01@hanyang.ac.kr
 
